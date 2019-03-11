@@ -8,6 +8,11 @@ import pandas as pd
 
 
 def initial(configPath):
+    """
+    将txt数据转为csv,以便于使用pandas读取
+    :param configPath: txt数据文件路径
+    :return:
+    """
     # configPath = "CodeCraft-2019/config"
     carPath = configPath + "/car.txt"
     crossPath = configPath + "/cross.txt"

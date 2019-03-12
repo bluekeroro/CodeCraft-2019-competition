@@ -24,6 +24,20 @@ class mapHelper(object):
                       'size': 10,
                       }
 
+    def getCrossIdList(self):
+        """
+        获取全部的CrossId
+        :return: list类型
+        """
+        return list(self.dataCross['id'])
+
+    def getRoadIdList(self):
+        """
+        获取全部的RoadId
+        :return: list类型
+        """
+        return list(self.dataRoad['id'])
+
     def getRoadLength(self, roadId):
         """
         根据roadId获取其长度
@@ -78,13 +92,48 @@ class mapHelper(object):
         dfTemp = dfTemp[dfTemp['id'] != oldCrossId]
         return list(dfTemp['id'])[0]
 
-    def getSpeedByRoadId(self, roadId):
+    def getRoadSpeedByRoadId(self, roadId):
         """
         根据roadId获取该路段的限速
         :param roadId:
         :return:
         """
         return list(self.dataRoad[self.dataRoad['id'] == roadId]['speed'])[0]
+
+    def getRoadChannelByRoadId(self, roadId):
+        """
+        根据roadId获取该路段的车道数目
+        :param roadId:
+        :return:
+        """
+        return list(self.dataRoad[self.dataRoad['id'] == roadId]['channel'])[0]
+
+    def getRoadFromCrossByRoadId(self, roadId):
+        """
+        根据roadId获取该路段的起始点id
+        :param roadId:
+        :return:
+        """
+        return list(self.dataRoad[self.dataRoad['id'] == roadId]['from'])[0]
+
+    def getRoadToCrossByRoadId(self, roadId):
+        """
+        根据roadId获取该路段的终点id
+        :param roadId:
+        :return:
+        """
+        return list(self.dataRoad[self.dataRoad['id'] == roadId]['to'])[0]
+
+    def isDuplexByRoadId(self, roadId):
+        """
+        根据roadId判断该路段是否双向
+        :param roadId:
+        :return: 布尔类型
+        """
+        if list(self.dataRoad[self.dataRoad['id'] == roadId]['isDuplex'])[0] == 1:
+            return True
+        else:
+            return False
 
     def __dfs(self, x, y, oldX, oldY, crossId, roadId):
         if crossId in self.hasAddMap:
@@ -190,7 +239,13 @@ if __name__ == "__main__":
     dataCross = pd.read_csv(configPath + '/cross.csv')
     dataRoad = pd.read_csv(configPath + '/road.csv')
     mapHelperVar = mapHelper(dataCross, dataRoad)
+    print(mapHelperVar.getCrossIdList())
+    print(mapHelperVar.getRoadIdList())
     print(mapHelperVar.getUpRoadId(8), mapHelperVar.getRightRoadId(8), mapHelperVar.getDownRoadId(8),
           mapHelperVar.getLeftRoadId(8))
-    print(mapHelperVar.getSpeedByRoadId(5012), mapHelperVar.getSpeedByRoadId(5013))
+    print(mapHelperVar.getRoadSpeedByRoadId(5014)
+          , mapHelperVar.getRoadChannelByRoadId(5014)
+          , mapHelperVar.getRoadFromCrossByRoadId(5014)
+          , mapHelperVar.getRoadToCrossByRoadId(5014)
+          , mapHelperVar.isDuplexByRoadId(5014))
     mapHelperVar.plotMap()

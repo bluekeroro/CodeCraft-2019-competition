@@ -78,6 +78,14 @@ class mapHelper(object):
         dfTemp = dfTemp[dfTemp['id'] != oldCrossId]
         return list(dfTemp['id'])[0]
 
+    def getSpeedByRoadId(self, roadId):
+        """
+        根据roadId获取该路段的限速
+        :param roadId:
+        :return:
+        """
+        return list(self.dataRoad[self.dataRoad['id'] == roadId]['speed'])[0]
+
     def __dfs(self, x, y, oldX, oldY, crossId, roadId):
         if crossId in self.hasAddMap:
             return
@@ -184,4 +192,5 @@ if __name__ == "__main__":
     mapHelperVar = mapHelper(dataCross, dataRoad)
     print(mapHelperVar.getUpRoadId(8), mapHelperVar.getRightRoadId(8), mapHelperVar.getDownRoadId(8),
           mapHelperVar.getLeftRoadId(8))
+    print(mapHelperVar.getSpeedByRoadId(5012), mapHelperVar.getSpeedByRoadId(5013))
     mapHelperVar.plotMap()

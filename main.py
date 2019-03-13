@@ -6,9 +6,8 @@
 """
 import pandas as pd
 import logging
-import sys
 import os
-import initialData
+from lib import initialData
 
 logging.basicConfig(level=logging.DEBUG,
                     filename=os.path.dirname(os.path.abspath(__file__)) + '/logs/CodeCraft-2019.log',

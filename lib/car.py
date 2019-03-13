@@ -1,14 +1,55 @@
 # -*- coding:UTF-8 -*-
 """
-@File    : carHelper.py
+@File    : car.py
 @Time    : 2019/3/12 19:14
 @Author  : Blue Keroro
 """
 import pandas as pd
-import initialData
+from lib import initialData
 
 
-class carHelper(object):
+class Car(object):
+    def __init__(self, carId, cares):
+        self.carId = carId
+        self.cares = cares
+
+    def getCarId(self):
+        """
+        获取CarId
+        :return:
+        """
+        return self.carId
+
+    def getCarFrom(self):
+        """
+        获取其始发地
+        :return:
+        """
+        return self.cares.getCarFromByCarId(self.carId)
+
+    def getCarTo(self):
+        """
+        获取其目的地
+        :return:
+        """
+        return self.cares.getCarToByCarId(self.carId)
+
+    def getCarSpeed(self):
+        """
+        获取其最高速度
+        :return:
+        """
+        return self.cares.getCarSpeedByCarId(self.carId)
+
+    def getCarPlanTime(self):
+        """
+        获取其出发时间
+        :return:
+        """
+        return self.cares.getCarPlanTimeByCarId(self.carId)
+
+
+class Cares(object):
     def __init__(self, dataCar):
         self.dataCar = dataCar
 
@@ -53,12 +94,12 @@ class carHelper(object):
 
 
 if __name__ == "__main__":
-    configPath = "CodeCraft-2019/config_10"
+    configPath = "../CodeCraft-2019/config_10"
     initialData.initial(configPath)
     dataCar = pd.read_csv(configPath + '/car.csv')
-    carHelperVar = carHelper(dataCar)
-    print(carHelperVar.getCarIdList())
-    print(carHelperVar.getCarFromByCarId(10013)
-          , carHelperVar.getCarToByCarId(10013)
-          , carHelperVar.getCarSpeedByCarId(10013)
-          , carHelperVar.getCarPlanTimeByCarId(10013))
+    caresVar = Cares(dataCar)
+    print(caresVar.getCarIdList())
+    print(caresVar.getCarFromByCarId(10013)
+          , caresVar.getCarToByCarId(10013)
+          , caresVar.getCarSpeedByCarId(10013)
+          , caresVar.getCarPlanTimeByCarId(10013))

@@ -12,6 +12,8 @@ class Car(object):
     def __init__(self, carId, cares):
         self.carId = carId
         self.cares = cares
+        if not (carId in cares.getCarIdList()):
+            raise RuntimeError("Invalid param.")
 
     def getCarId(self):
         """
@@ -103,3 +105,8 @@ if __name__ == "__main__":
           , caresVar.getCarToByCarId(10013)
           , caresVar.getCarSpeedByCarId(10013)
           , caresVar.getCarPlanTimeByCarId(10013))
+    carVar = Car(12048, caresVar)
+    print(carVar.getCarFrom()
+          , carVar.getCarTo()
+          , carVar.getCarSpeed()
+          , carVar.getCarPlanTime())

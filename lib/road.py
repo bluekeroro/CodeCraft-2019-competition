@@ -12,6 +12,8 @@ class Road(object):
     def __init__(self, roadId, roades):
         self.roadId = roadId
         self.roades = roades
+        if not (roadId in roades.getRoadIdList()):
+            raise RuntimeError("Invalid param.")
 
     def getRoadId(self):
         """

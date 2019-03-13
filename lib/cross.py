@@ -12,6 +12,8 @@ class Cross(object):
     def __init__(self, crossId, crosses):
         self.crossId = crossId
         self.crosses = crosses
+        if not (crossId in crosses.getCrossIdList()):
+            raise RuntimeError("Invalid param.")
 
     def getCrossId(self):
         """

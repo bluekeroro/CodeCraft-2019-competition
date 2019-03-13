@@ -48,6 +48,25 @@ class MapHelper(object):
             return -1
         return roadId
 
+    def addArrow(self, crossId, roadId, x, y, newX, newY):
+        """
+        绘制箭头函数，可判断若不符合可行驶方向，则不绘制
+        :param crossId: 为空时则直接画箭头
+        :param roadId: 为空时则直接画箭头
+        :param x: 箭头起始坐标
+        :param y: 箭头起始坐标
+        :param newX: 箭头终点坐标
+        :param newY: 箭头终点坐标
+        :return:
+        """
+        width = 0.3
+        head_width = 6 * width # 3
+        head_length = 2.5 * head_width # 1.5
+        if (crossId is None or roadId is None) \
+                or (self.roades.getRoadFromCrossByRoadId(roadId) is crossId or self.roades.isDuplexByRoadId(roadId)):
+            plt.arrow(x, y, newX - x, newY - y, color='r', width=width, head_width=head_width, head_length=head_length,
+                      length_includes_head=True)
+
     def __dfs(self, x, y, crossId):
         if crossId in self.hasAddMap:
             return
@@ -61,7 +80,7 @@ class MapHelper(object):
         if upRoadId != -1:
             newX = x
             newY = y + self.interval
-            plt.plot([newX, x], [newY, y], color='r')
+            self.addArrow(crossId, upRoadId, x, y, newX, newY)
             print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
                   self.roades.getAnotherCrossIdByRoadId(crossId, upRoadId))
             plt.text((newX + x) / 2, (newY + y) / 2,
@@ -71,7 +90,7 @@ class MapHelper(object):
         if rightRoadId != -1:
             newX = x + self.interval
             newY = y
-            plt.plot([newX, x], [newY, y], color='r')
+            self.addArrow(crossId, rightRoadId, x, y, newX, newY)
             plt.text((newX + x) / 2, (newY + y) / 2,
                      str(rightRoadId) + '(' + str(self.roades.getRoadLengthByRoadId(rightRoadId)) + ')',
                      fontdict=self.font1)
@@ -81,7 +100,7 @@ class MapHelper(object):
         if downRoadId != -1:
             newX = x
             newY = y - self.interval
-            plt.plot([newX, x], [newY, y], color='r')
+            self.addArrow(crossId, downRoadId, x, y, newX, newY)
             plt.text((newX + x) / 2, (newY + y) / 2,
                      str(downRoadId) + '(' + str(self.roades.getRoadLengthByRoadId(downRoadId)) + ')',
                      fontdict=self.font1)
@@ -91,7 +110,7 @@ class MapHelper(object):
         if leftRoadId != -1:
             newX = x - self.interval
             newY = y
-            plt.plot([newX, x], [newY, y], color='r')
+            self.addArrow(crossId, leftRoadId, x, y, newX, newY)
             plt.text((newX + x) / 2, (newY + y) / 2,
                      str(leftRoadId) + '(' + str(self.roades.getRoadLengthByRoadId(leftRoadId)) + ')',
                      fontdict=self.font1)

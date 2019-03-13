@@ -9,10 +9,10 @@ from lib import initialData
 
 
 class Road(object):
-    def __init__(self, roadId, roades):
+    def __init__(self, roadId, roads):
         self.__roadId = roadId
-        self.__roades = roades
-        if not (roadId in roades.getRoadIdList()):
+        self.__roads = roads
+        if not (roadId in roads.getRoadIdList()):
             raise RuntimeError("Invalid param.")
 
     def getRoadId(self):
@@ -27,48 +27,48 @@ class Road(object):
         获取其长度
         :return:
         """
-        return self.__roades.getRoadLengthByRoadId(self.__roadId)
+        return self.__roads.getRoadLengthByRoadId(self.__roadId)
 
     def getRoadLimitSpeed(self):
         """
         获取该路段的限速
         :return:
         """
-        return self.__roades.getRoadLimitSpeedByRoadId(self.__roadId)
+        return self.__roads.getRoadLimitSpeedByRoadId(self.__roadId)
 
     def getRoadChannel(self):
         """
         获取该路段的车道数目
         :return:
         """
-        return self.__roades.getRoadChannelByRoadId(self.__roadId)
+        return self.__roads.getRoadChannelByRoadId(self.__roadId)
 
     def getRoadFromCross(self):
         """
         获取该路段的起始点id
         :return:
         """
-        return self.__roades.getRoadFromCrossByRoadId(self.__roadId)
+        return self.__roads.getRoadFromCrossByRoadId(self.__roadId)
 
     def getRoadToCross(self):
         """
         获取该路段的终点id
         :return:
         """
-        return self.__roades.getRoadToCrossByRoadId(self.__roadId)
+        return self.__roads.getRoadToCrossByRoadId(self.__roadId)
 
     def isDuplex(self):
         """
         判断该路段是否双向
         :return: 布尔类型
         """
-        return self.__roades.isDuplexByRoadId(self.__roadId)
+        return self.__roads.isDuplexByRoadId(self.__roadId)
 
     def getAnotherCrossId(self, oldCrossId):
-        return self.__roades.getAnotherCrossIdByRoadId(oldCrossId, self.__roadId)
+        return self.__roads.getAnotherCrossIdByRoadId(oldCrossId, self.__roadId)
 
 
-class Roades(object):
+class Roads(object):
     def __init__(self, dataRoad):
         self.dataRoad = dataRoad
 
@@ -146,11 +146,11 @@ if __name__ == '__main__':
     configPath = "../CodeCraft-2019/config_10"
     initialData.initial(configPath)
     dataRoad = pd.read_csv(configPath + '/road.csv')
-    roadesVar = Roades(dataRoad)
-    print(roadesVar.getRoadIdList())
-    print(roadesVar.getRoadLengthByRoadId(5014)
-          , roadesVar.getRoadLimitSpeedByRoadId(5014)
-          , roadesVar.getRoadChannelByRoadId(5014)
-          , roadesVar.getRoadFromCrossByRoadId(5014)
-          , roadesVar.getRoadToCrossByRoadId(5014)
-          , roadesVar.isDuplexByRoadId(5014))
+    roadsVar = Roads(dataRoad)
+    print(roadsVar.getRoadIdList())
+    print(roadsVar.getRoadLengthByRoadId(5014)
+          , roadsVar.getRoadLimitSpeedByRoadId(5014)
+          , roadsVar.getRoadChannelByRoadId(5014)
+          , roadsVar.getRoadFromCrossByRoadId(5014)
+          , roadsVar.getRoadToCrossByRoadId(5014)
+          , roadsVar.isDuplexByRoadId(5014))

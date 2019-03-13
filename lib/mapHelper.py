@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from lib import initialData
 from lib.cross import Crosses
-from lib.road import Roades
+from lib.road import Roads
 
 
 class MapHelper(object):
@@ -18,7 +18,7 @@ class MapHelper(object):
         :param dataRoad: dataFrame road数据
         """
         self.crosses = Crosses(dataCross)
-        self.roades = Roades(dataRoad)
+        self.roads = Roads(dataRoad)
         self.hasAddMap = {}
         self.interval = 20
         self.font1 = {'family': 'Times New Roman',
@@ -44,7 +44,7 @@ class MapHelper(object):
             roadId = self.crosses.getLeftRoadId(crossId)
         if roadId is None or roadId == -1:
             return -1
-        if (not self.roades.isDuplexByRoadId(roadId)) and self.roades.getRoadFromCrossByRoadId(roadId) != crossId:
+        if (not self.roads.isDuplexByRoadId(roadId)) and self.roads.getRoadFromCrossByRoadId(roadId) != crossId:
             return -1
         return roadId
 
@@ -63,7 +63,7 @@ class MapHelper(object):
         head_width = 6 * width # 3
         head_length = 2.5 * head_width # 1.5
         if (crossId is None or roadId is None) \
-                or (self.roades.getRoadFromCrossByRoadId(roadId) is crossId or self.roades.isDuplexByRoadId(roadId)):
+                or (self.roads.getRoadFromCrossByRoadId(roadId) is crossId or self.roads.isDuplexByRoadId(roadId)):
             plt.arrow(x, y, newX - x, newY - y, color='r', width=width, head_width=head_width, head_length=head_length,
                       length_includes_head=True)
 
@@ -82,41 +82,41 @@ class MapHelper(object):
             newY = y + self.interval
             self.addArrow(crossId, upRoadId, x, y, newX, newY)
             print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
-                  self.roades.getAnotherCrossIdByRoadId(crossId, upRoadId))
+                  self.roads.getAnotherCrossIdByRoadId(crossId, upRoadId))
             plt.text((newX + x) / 2, (newY + y) / 2,
-                     str(upRoadId) + '(' + str(self.roades.getRoadLengthByRoadId(upRoadId)) + ')',
+                     str(upRoadId) + '(' + str(self.roads.getRoadLengthByRoadId(upRoadId)) + ')',
                      fontdict=self.font1)
-            self.__dfs(newX, newY, self.roades.getAnotherCrossIdByRoadId(crossId, upRoadId))
+            self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, upRoadId))
         if rightRoadId != -1:
             newX = x + self.interval
             newY = y
             self.addArrow(crossId, rightRoadId, x, y, newX, newY)
             plt.text((newX + x) / 2, (newY + y) / 2,
-                     str(rightRoadId) + '(' + str(self.roades.getRoadLengthByRoadId(rightRoadId)) + ')',
+                     str(rightRoadId) + '(' + str(self.roads.getRoadLengthByRoadId(rightRoadId)) + ')',
                      fontdict=self.font1)
             print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
-                  self.roades.getAnotherCrossIdByRoadId(crossId, rightRoadId))
-            self.__dfs(newX, newY, self.roades.getAnotherCrossIdByRoadId(crossId, rightRoadId))
+                  self.roads.getAnotherCrossIdByRoadId(crossId, rightRoadId))
+            self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, rightRoadId))
         if downRoadId != -1:
             newX = x
             newY = y - self.interval
             self.addArrow(crossId, downRoadId, x, y, newX, newY)
             plt.text((newX + x) / 2, (newY + y) / 2,
-                     str(downRoadId) + '(' + str(self.roades.getRoadLengthByRoadId(downRoadId)) + ')',
+                     str(downRoadId) + '(' + str(self.roads.getRoadLengthByRoadId(downRoadId)) + ')',
                      fontdict=self.font1)
             print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
-                  self.roades.getAnotherCrossIdByRoadId(crossId, downRoadId))
-            self.__dfs(newX, newY, self.roades.getAnotherCrossIdByRoadId(crossId, downRoadId))
+                  self.roads.getAnotherCrossIdByRoadId(crossId, downRoadId))
+            self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, downRoadId))
         if leftRoadId != -1:
             newX = x - self.interval
             newY = y
             self.addArrow(crossId, leftRoadId, x, y, newX, newY)
             plt.text((newX + x) / 2, (newY + y) / 2,
-                     str(leftRoadId) + '(' + str(self.roades.getRoadLengthByRoadId(leftRoadId)) + ')',
+                     str(leftRoadId) + '(' + str(self.roads.getRoadLengthByRoadId(leftRoadId)) + ')',
                      fontdict=self.font1)
             print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
-                  self.roades.getAnotherCrossIdByRoadId(crossId, leftRoadId))
-            self.__dfs(newX, newY, self.roades.getAnotherCrossIdByRoadId(crossId, leftRoadId))
+                  self.roads.getAnotherCrossIdByRoadId(crossId, leftRoadId))
+            self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, leftRoadId))
 
     def plotMap(self):
         """

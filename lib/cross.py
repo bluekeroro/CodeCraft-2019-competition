@@ -10,8 +10,8 @@ from lib import initialData
 
 class Cross(object):
     def __init__(self, crossId, crosses):
-        self.crossId = crossId
-        self.crosses = crosses
+        self.__crossId = crossId
+        self.__crosses = crosses
         if not (crossId in crosses.getCrossIdList()):
             raise RuntimeError("Invalid param.")
 
@@ -20,7 +20,7 @@ class Cross(object):
         获取CrossId
         :return:
         """
-        return self.crossId
+        return self.__crossId
 
     def getUpRoadId(self):
         """
@@ -28,7 +28,7 @@ class Cross(object):
         :param crossId:
         :return:
         """
-        return self.crosses.getUpRoadId(self.crossId)
+        return self.__crosses.getUpRoadId(self.__crossId)
 
     def getRightRoadId(self):
         """
@@ -36,7 +36,7 @@ class Cross(object):
         :param crossId:
         :return:
         """
-        return self.crosses.getRightRoadId(self.crossId)
+        return self.__crosses.getRightRoadId(self.__crossId)
 
     def getDownRoadId(self):
         """
@@ -44,7 +44,7 @@ class Cross(object):
         :param crossId:
         :return:
         """
-        return self.crosses.getDownRoadId(self.crossId)
+        return self.__crosses.getDownRoadId(self.__crossId)
 
     def getLeftRoadId(self):
         """
@@ -52,7 +52,7 @@ class Cross(object):
         :param crossId:
         :return:
         """
-        return self.crosses.getLeftRoadId(self.crossId)
+        return self.__crosses.getLeftRoadId(self.__crossId)
 
 
 class Crosses(object):

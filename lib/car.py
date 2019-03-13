@@ -10,8 +10,10 @@ from lib import initialData
 
 class Car(object):
     def __init__(self, carId, cares):
-        self.carId = carId
-        self.cares = cares
+        self.__carId = carId
+        self.__cares = cares
+        self.__currentSpeed = 0  # 初始车辆的速度为零
+        self.__drivePath = list()  # 车辆已经行驶及正在行驶的路径
         if not (carId in cares.getCarIdList()):
             raise RuntimeError("Invalid param.")
 
@@ -20,35 +22,58 @@ class Car(object):
         获取CarId
         :return:
         """
-        return self.carId
+        return self.__carId
 
     def getCarFrom(self):
         """
         获取其始发地
         :return:
         """
-        return self.cares.getCarFromByCarId(self.carId)
+        return self.__cares.getCarFromByCarId(self.__carId)
 
     def getCarTo(self):
         """
         获取其目的地
         :return:
         """
-        return self.cares.getCarToByCarId(self.carId)
+        return self.__cares.getCarToByCarId(self.__carId)
 
-    def getCarSpeed(self):
+    def getCarLargestSpeed(self):
         """
         获取其最高速度
         :return:
         """
-        return self.cares.getCarSpeedByCarId(self.carId)
+        return self.__cares.getCarLargestSpeedByCarId(self.__carId)
 
     def getCarPlanTime(self):
         """
         获取其出发时间
         :return:
         """
-        return self.cares.getCarPlanTimeByCarId(self.carId)
+        return self.__cares.getCarPlanTimeByCarId(self.__carId)
+
+    def getCarCurrentSpeed(self):
+        """
+        获取车辆当前速度
+        :return:
+        """
+        return self.__currentSpeed
+
+    def setCarCurrentSpeed(self, currentSpeed):
+        """
+        设置车辆当前速度
+        :return:
+        """
+        if currentSpeed > self.getCarLargestSpeed():
+            raise RuntimeError('Invalid param.')
+        self.__currentSpeed = currentSpeed
+
+    def addDrivePath(self, roadId):
+        """
+        每进入一段路径，添加当前路径id
+        :return:
+        """
+        self.__drivePath.append(roadId)
 
 
 class Cares(object):
@@ -78,7 +103,7 @@ class Cares(object):
         """
         return list(self.dataCar[self.dataCar['id'] == carId]['to'])[0]
 
-    def getCarSpeedByCarId(self, carId):
+    def getCarLargestSpeedByCarId(self, carId):
         """
         根据carId获取其最高速度
         :param carId:
@@ -103,10 +128,10 @@ if __name__ == "__main__":
     print(caresVar.getCarIdList())
     print(caresVar.getCarFromByCarId(10013)
           , caresVar.getCarToByCarId(10013)
-          , caresVar.getCarSpeedByCarId(10013)
+          , caresVar.getCarLargestSpeedByCarId(10013)
           , caresVar.getCarPlanTimeByCarId(10013))
     carVar = Car(12048, caresVar)
     print(carVar.getCarFrom()
           , carVar.getCarTo()
-          , carVar.getCarSpeed()
+          , carVar.getCarLargestSpeed()
           , carVar.getCarPlanTime())

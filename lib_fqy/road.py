@@ -1,156 +1,53 @@
 # -*- coding:UTF-8 -*-
-"""
-@File    : road.py
-@Time    : 2019/3/12 21:15
-@Author  : Blue Keroro
-"""
+
 import pandas as pd
-from lib import initialData
+from queue import Queue
 
 
 class Road(object):
-    def __init__(self, roadId, roads):
-        self.__roadId = roadId
-        self.__roads = roads
-        if not (roadId in roads.getRoadIdList()):
-            raise RuntimeError("Invalid param.")
+    def __init__(self, **data):
+        self.id = data['id']  # 道路的id
+        self.length = data['length']  # 道路的长度
+        self.limitSpeed = data['speed']  # 道路的限速
+        self.laneNum = data['channel']  # 道路的车道数目
+        self.srcCross = data['from']  # 道路连接的起点路口
+        self.dstCross = data['to']  # 道路连接的终点路口
 
-    def getRoadId(self):
-        """
-        获取RoadId
-        :return:
-        """
-        return self.__roadId
-
-    def getRoadLength(self):
-        """
-        获取其长度
-        :return:
-        """
-        return self.__roads.getRoadLengthByRoadId(self.__roadId)
-
-    def getRoadLimitSpeed(self):
-        """
-        获取该路段的限速
-        :return:
-        """
-        return self.__roads.getRoadLimitSpeedByRoadId(self.__roadId)
-
-    def getRoadChannel(self):
-        """
-        获取该路段的车道数目
-        :return:
-        """
-        return self.__roads.getRoadChannelByRoadId(self.__roadId)
-
-    def getRoadFromCross(self):
-        """
-        获取该路段的起始点id
-        :return:
-        """
-        return self.__roads.getRoadFromCrossByRoadId(self.__roadId)
-
-    def getRoadToCross(self):
-        """
-        获取该路段的终点id
-        :return:
-        """
-        return self.__roads.getRoadToCrossByRoadId(self.__roadId)
-
-    def isDuplex(self):
-        """
-        判断该路段是否双向
-        :return: 布尔类型
-        """
-        return self.__roads.isDuplexByRoadId(self.__roadId)
-
-    def getAnotherCrossId(self, oldCrossId):
-        return self.__roads.getAnotherCrossIdByRoadId(oldCrossId, self.__roadId)
+        self.currentLane = {i: Queue(self.length) for i in range(1, self.laneNum + 1)}  # 各车道当前存在的车辆
 
 
-class Roads(object):
-    def __init__(self, dataRoad):
-        self.dataRoad = dataRoad
+def generateRoadInstances(configPath):
+    roadSet = {}
+    roadData = pd.read_csv(configPath + '/road.csv')
+    for index, row in roadData.iterrows():
+        data = {
+            'id': str(row['id']) + '-1',
+            'length': row['length'],
+            'speed': row['speed'],
+            'channel': row['channel'],
+            'from': str(row['from']),
+            'to': str(row['to']),
+        }
+        roadSet[data['id']] = Road(**data)
 
-    def getRoadIdList(self):
-        """
-        获取全部的RoadId
-        :return: list类型
-        """
-        return list(self.dataRoad['id'])
+        # 如果是双向的加多一条反向的road
+        if row['isDuplex']:
+            data = {
+                'id': str(row['id']) + '-2',
+                'length': row['length'],
+                'speed': row['speed'],
+                'channel': row['channel'],
+                'from': str(row['to']),
+                'to': str(row['from']),
+            }
+            roadSet[data['id']] = Road(**data)
 
-    def getRoadLengthByRoadId(self, roadId):
-        """
-        根据roadId获取其长度
-        :param roadId:
-        :return:
-        """
-        return list(self.dataRoad[self.dataRoad['id'] == roadId]['length'].astype(int))[0]
-
-    def getRoadLimitSpeedByRoadId(self, roadId):
-        """
-        根据roadId获取该路段的限速
-        :param roadId:
-        :return:
-        """
-        return list(self.dataRoad[self.dataRoad['id'] == roadId]['speed'])[0]
-
-    def getRoadChannelByRoadId(self, roadId):
-        """
-        根据roadId获取该路段的车道数目
-        :param roadId:
-        :return:
-        """
-        return list(self.dataRoad[self.dataRoad['id'] == roadId]['channel'])[0]
-
-    def getRoadFromCrossByRoadId(self, roadId):
-        """
-        根据roadId获取该路段的起始点id
-        :param roadId:
-        :return:
-        """
-        return list(self.dataRoad[self.dataRoad['id'] == roadId]['from'])[0]
-
-    def getRoadToCrossByRoadId(self, roadId):
-        """
-        根据roadId获取该路段的终点id
-        :param roadId:
-        :return:
-        """
-        return list(self.dataRoad[self.dataRoad['id'] == roadId]['to'])[0]
-
-    def isDuplexByRoadId(self, roadId):
-        """
-        根据roadId判断该路段是否双向
-        :param roadId:
-        :return: 布尔类型
-        """
-        if list(self.dataRoad[self.dataRoad['id'] == roadId]['isDuplex'])[0] == 1:
-            return True
-        else:
-            return False
-
-    def getAnotherCrossIdByRoadId(self, oldCrossId, roadId):
-        """
-        获取路径另一端的crossId
-        :param oldCrossId:
-        :param roadId:
-        :return:
-        """
-        toVar = self.getRoadToCrossByRoadId(roadId)
-        fromVar = self.getRoadFromCrossByRoadId(roadId)
-        return fromVar if oldCrossId == toVar else toVar
+    return roadSet
 
 
 if __name__ == '__main__':
-    configPath = "../CodeCraft-2019/config_10"
-    initialData.initial(configPath)
-    dataRoad = pd.read_csv(configPath + '/road.csv')
-    roadsVar = Roads(dataRoad)
-    print(roadsVar.getRoadIdList())
-    print(roadsVar.getRoadLengthByRoadId(5014)
-          , roadsVar.getRoadLimitSpeedByRoadId(5014)
-          , roadsVar.getRoadChannelByRoadId(5014)
-          , roadsVar.getRoadFromCrossByRoadId(5014)
-          , roadsVar.getRoadToCrossByRoadId(5014)
-          , roadsVar.isDuplexByRoadId(5014))
+    configPath = '../CodeCraft-2019/config'
+    roads = generateRoadInstances(configPath)
+    print(roads['5010-1'].__dict__)
+    print(roads['5010-2'].__dict__)
+    print(roads['5010-1'].length)

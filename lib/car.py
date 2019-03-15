@@ -41,5 +41,5 @@ def generateCarInstances(configPath):
 if __name__ == '__main__':
     configPath = '../CodeCraft-2019/config'
     cars = generateCarInstances(configPath)
-    print cars['10000'].__dict__
+    print(cars['10000'].__dict__)
 

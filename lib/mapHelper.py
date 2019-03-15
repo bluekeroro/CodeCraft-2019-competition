@@ -4,6 +4,10 @@
 @Time    : 2019/3/10 19:54
 @Author  : Blue Keroro
 """
+import operator
+from collections import defaultdict
+from heapq import *
+
 import matplotlib.pyplot as plt
 import pandas as pd
 from lib import initialData
@@ -168,12 +172,61 @@ class MapHelper(object):
         return self.graph
 
     def findShortestPathByNetworkx(self, source, target):
+        """
+        使用Networkx计算两点之间的最短路径
+        :param source:
+        :param target:
+        :return:
+        """
         crossesIdList = nx.shortest_path(mapHelperVar.getDirGraph(), source=source, target=target, weight='weight')
         roadIdList = list()
         for index in range(1, len(crossesIdList)):
             roadIdList.append(
                 mapHelperVar.getRoadIdByTwoCrossIds(int(crossesIdList[index - 1]), int(crossesIdList[index])))
         return roadIdList
+
+    def findShortestPathByMyDijkstra(self, fromCrossId, toCrossId, crossRelation, roadInstances):
+        """
+        使用自定义的Dijkstra计算两点之间的最短路径，使用fqy的crossRelation和roadInstances结构
+        :param fromCrossId:
+        :param toCrossId:
+        :param crossRelation:
+        :param roadInstances:
+        :return:
+        """
+        ret = self.__dijkstra(fromCrossId, toCrossId, crossRelation, roadInstances)
+        if ret is None:
+            return None
+        crossesIdList = list(ret[1])
+        roadIdList = list()
+        for index in range(1, len(crossesIdList)):
+            roadIdList.append(
+                mapHelperVar.getRoadIdByTwoCrossIds(int(crossesIdList[index - 1]), int(crossesIdList[index])))
+        return roadIdList
+
+    def __dijkstra(self, fromCrossId, toCrossId, crossRelation, roadInstances):
+        edges = list()
+        for i in crossRelation.keys():
+            for j in crossRelation[i].keys():
+                edges.append((i, j, roadInstances[crossRelation[i][j]].length))
+        g = defaultdict(list)
+        for l, r, c in edges:
+            g[l].append((c, r))
+        # dist records the min value of each node in heap.
+        q, seen, dist = [(0, fromCrossId, ())], set(), {fromCrossId: 0}
+        while q:
+            (cost, v1, path) = heappop(q)
+            if v1 in seen: continue
+            seen.add(v1)
+            path += (v1,)
+            if v1 == toCrossId: return (cost, path)
+            for c, v2 in g.get(v1, ()):
+                if v2 in seen: continue
+                # Not every edge will be calculated. The edge which can improve the value of node in heap will be useful.
+                if v2 not in dist or cost + c < dist[v2]:
+                    dist[v2] = cost + c
+                    heappush(q, (cost + c, v2, path))
+        return None
 
 
 if __name__ == "__main__":
@@ -194,4 +247,20 @@ if __name__ == "__main__":
     trafficMap = Map(configPath)
     mapHelperVar.initialDirGraph(trafficMap.crossRelation, generateRoadInstances(configPath))
     # plt.show()
-    print(mapHelperVar.findShortestPathByNetworkx('1', '36'))
+    print(mapHelperVar.findShortestPathByNetworkx('1', '25'))
+    print(mapHelperVar.findShortestPathByMyDijkstra('1', '25', trafficMap.crossRelation,
+                                                    generateRoadInstances(configPath)))
+    roadsVar = Roads(dataRoad)
+    for i in range(1, 36):
+        for j in range(1, 36):
+            roadIdList1 = mapHelperVar.findShortestPathByNetworkx(str(i), str(j))
+            roadIdList2 = mapHelperVar.findShortestPathByMyDijkstra(str(i), str(j), trafficMap.crossRelation,
+                                                                    generateRoadInstances(configPath))
+            print("start=", i, "end=", j, "Len1=",
+                  roadsVar.getSumRoadLength(roadIdList1), 'Len2=', roadsVar.getSumRoadLength(roadIdList2))
+            if (not operator.eq(roadIdList1, roadIdList2)) \
+                    and (roadsVar.getSumRoadLength(roadIdList1) != roadsVar.getSumRoadLength(roadIdList2)):
+                print("     roadIdList1=", roadIdList1)
+                print("     roadIdList2=", roadIdList2)
+            else:
+                print("equal")

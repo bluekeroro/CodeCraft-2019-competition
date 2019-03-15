@@ -76,7 +76,7 @@ class Car(object):
         self.__drivePath.append(roadId)
 
 
-class Cares(object):
+class Cars(object):
     def __init__(self, dataCar):
         self.dataCar = dataCar
 
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     configPath = "../CodeCraft-2019/config_10"
     initialData.initial(configPath)
     dataCar = pd.read_csv(configPath + '/car.csv')
-    caresVar = Cares(dataCar)
+    caresVar = Cars(dataCar)
     print(caresVar.getCarIdList())
     print(caresVar.getCarFromByCarId(10013)
           , caresVar.getCarToByCarId(10013)

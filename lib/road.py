@@ -141,6 +141,17 @@ class Roads(object):
         fromVar = self.getRoadFromCrossByRoadId(roadId)
         return fromVar if oldCrossId == toVar else toVar
 
+    def getSumRoadLength(self, roadIdList):
+        """
+        计算一连串路径的长度之和
+        :param roadIdList: list
+        :return:
+        """
+        ret = 0
+        for roadId in roadIdList:
+            ret += self.getRoadLengthByRoadId(roadId)
+        return ret
+
 
 if __name__ == '__main__':
     configPath = "../CodeCraft-2019/config_10"
@@ -154,3 +165,5 @@ if __name__ == '__main__':
           , roadsVar.getRoadFromCrossByRoadId(5014)
           , roadsVar.getRoadToCrossByRoadId(5014)
           , roadsVar.isDuplexByRoadId(5014))
+    roadIdList = [5000, 5006, 5012, 5018, 5023, 5024, 5030, 5036, 5042, 5052]
+    print(roadsVar.getSumRoadLength(roadIdList))

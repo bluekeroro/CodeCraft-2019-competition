@@ -179,7 +179,7 @@ class MapHelper(object):
         :param target:
         :return:
         """
-        crossesIdList = nx.shortest_path(mapHelperVar.getDirGraph(), source=source, target=target, weight='weight')
+        crossesIdList = nx.shortest_path(self.getDirGraph(), source=source, target=target, weight='weight')
         roadIdList = list()
         for index in range(1, len(crossesIdList)):
             roadIdList.append(

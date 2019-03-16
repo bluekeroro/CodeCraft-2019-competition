@@ -68,12 +68,27 @@ class Car(object):
             raise RuntimeError('Invalid param.')
         self.__currentSpeed = currentSpeed
 
-    def addDrivePath(self, roadId):
+    def addDriveRoad(self, roadId):
         """
         每进入一段路径，添加当前路径id
         :return:
         """
         self.__drivePath.append(roadId)
+
+    def addDrivePath(self, path):
+        """
+        添加整段路径
+        :param path: list
+        :return:
+        """
+        self.__drivePath = path
+
+    def getDrivePath(self):
+        """
+        获取车辆行驶的整段路径
+        :return:
+        """
+        return self.__drivePath
 
 
 class Cars(object):
@@ -130,7 +145,7 @@ if __name__ == "__main__":
           , caresVar.getCarToByCarId(10013)
           , caresVar.getCarLargestSpeedByCarId(10013)
           , caresVar.getCarPlanTimeByCarId(10013))
-    carVar = Car(12048, caresVar)
+    carVar = Car(12047, caresVar)
     print(carVar.getCarFrom()
           , carVar.getCarTo()
           , carVar.getCarLargestSpeed()

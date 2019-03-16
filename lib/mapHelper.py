@@ -11,6 +11,7 @@ from heapq import *
 import matplotlib.pyplot as plt
 import pandas as pd
 from lib import initialData
+from lib.car import Cars, Car
 from lib.cross import Crosses
 from lib.road import Roads
 import networkx as nx
@@ -234,33 +235,45 @@ if __name__ == "__main__":
     initialData.initial(configPath)
     dataCross = pd.read_csv(configPath + '/cross.csv')
     dataRoad = pd.read_csv(configPath + '/road.csv')
+    dataCar = pd.read_csv(configPath + '/car.csv')
     mapHelperVar = MapHelper(dataCross, dataRoad)
-    # print(mapHelperVar.crosses.getCrossIdList())
-    # print(mapHelperVar.crosses.getCrossIdList()[10])
-    # print(mapHelperVar.getRoadIdByDirection(10, 'up')
-    #       , mapHelperVar.getRoadIdByDirection(10, 'right')
-    #       , mapHelperVar.getRoadIdByDirection(10, 'down')
-    #       , mapHelperVar.getRoadIdByDirection(10, 'left'))
-    # plt.subplot(121)
-    mapHelperVar.plotMap(showRoadId=True)
-    # plt.subplot(122)
+    # mapHelperVar.plotMap(showRoadId=True)
     trafficMap = Map(configPath)
-    mapHelperVar.initialDirGraph(trafficMap.crossRelation, generateRoadInstances(configPath))
-    # plt.show()
-    print(mapHelperVar.findShortestPathByNetworkx('1', '25'))
-    print(mapHelperVar.findShortestPathByMyDijkstra('1', '25', trafficMap.crossRelation,
-                                                    generateRoadInstances(configPath)))
-    roadsVar = Roads(dataRoad)
-    for i in range(1, 36):
-        for j in range(1, 36):
-            roadIdList1 = mapHelperVar.findShortestPathByNetworkx(str(i), str(j))
-            roadIdList2 = mapHelperVar.findShortestPathByMyDijkstra(str(i), str(j), trafficMap.crossRelation,
-                                                                    generateRoadInstances(configPath))
-            print("start=", i, "end=", j, "Len1=",
-                  roadsVar.getSumRoadLength(roadIdList1), 'Len2=', roadsVar.getSumRoadLength(roadIdList2))
-            if (not operator.eq(roadIdList1, roadIdList2)) \
-                    and (roadsVar.getSumRoadLength(roadIdList1) != roadsVar.getSumRoadLength(roadIdList2)):
-                print("     roadIdList1=", roadIdList1)
-                print("     roadIdList2=", roadIdList2)
-            else:
-                print("equal")
+    roadInstances = generateRoadInstances(configPath)
+    mapHelperVar.initialDirGraph(trafficMap.crossRelation, roadInstances)
+    print(mapHelperVar.findShortestPathByNetworkx('2', '31'))
+    print(mapHelperVar.findShortestPathByMyDijkstra('2', '31', trafficMap.crossRelation,
+                                                    roadInstances))
+    carDict = {}
+    carVar = Cars(dataCar)
+    file = open(configPath + '/answer.txt', 'w')
+    path = {}
+    for carId in carVar.getCarIdList():
+        carDict[carId] = Car(carId, carVar)
+        fromCrossId = str(carDict[carId].getCarFrom())
+        toCrossId = str(carDict[carId].getCarTo())
+        if not (fromCrossId in path and toCrossId in path[fromCrossId]):
+            pathTemp = mapHelperVar \
+                .findShortestPathByMyDijkstra(fromCrossId, toCrossId, trafficMap.crossRelation, roadInstances)
+            path[fromCrossId] = {toCrossId: pathTemp}
+        print(carId)
+        carDict[carId].addDrivePath(path[fromCrossId][toCrossId])
+        string = str((carId, carDict[carId].getCarPlanTime(), carDict[carId].getDrivePath()))
+        string = string.replace('[', '')
+        string = string.replace(']', '')
+        file.write(string + '\n')
+    file.close()
+    # roadsVar = Roads(dataRoad)
+    # for i in range(1, 36):
+    #     for j in range(1, 36):
+    #         roadIdList1 = mapHelperVar.findShortestPathByNetworkx(str(i), str(j))
+    #         roadIdList2 = mapHelperVar.findShortestPathByMyDijkstra(str(i), str(j), trafficMap.crossRelation,
+    #                                                                 generateRoadInstances(configPath))
+    #         print("start=", i, "end=", j, "Len1=",
+    #               roadsVar.getSumRoadLength(roadIdList1), 'Len2=', roadsVar.getSumRoadLength(roadIdList2))
+    #         if (not operator.eq(roadIdList1, roadIdList2)) \
+    #                 and (roadsVar.getSumRoadLength(roadIdList1) != roadsVar.getSumRoadLength(roadIdList2)):
+    #             print("     roadIdList1=", roadIdList1)
+    #             print("     roadIdList2=", roadIdList2)
+    #         else:
+    #             print("equal")

@@ -50,7 +50,8 @@ def main():
         if not (fromCrossId in path and toCrossId in path[fromCrossId]):
             pathTemp = mapHelperVar \
                 .findShortestPathByMyDijkstra(fromCrossId, toCrossId, trafficMap.crossRelation, roadInstances)
-            path[fromCrossId] = {toCrossId: pathTemp}
+            path[fromCrossId][toCrossId] = pathTemp
+            # path[fromCrossId] = {toCrossId: pathTemp}
         print(carId)
         carDict[carId].addDrivePath(path[fromCrossId][toCrossId])
         string = str((carId, carDict[carId].getCarPlanTime(), carDict[carId].getDrivePath()))

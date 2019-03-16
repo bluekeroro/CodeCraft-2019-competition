@@ -166,7 +166,7 @@ class MapHelper(object):
         for i in crossRelation.keys():
             for j in crossRelation[i].keys():
                 G.add_weighted_edges_from([(i, j, roadInstances[crossRelation[i][j]].length)])
-        nx.draw_networkx(G, with_labels=True, arrows=True)
+        # nx.draw_networkx(G, with_labels=True, arrows=True)
         self.graph = G
 
     def getDirGraph(self):
@@ -183,7 +183,7 @@ class MapHelper(object):
         roadIdList = list()
         for index in range(1, len(crossesIdList)):
             roadIdList.append(
-                mapHelperVar.getRoadIdByTwoCrossIds(int(crossesIdList[index - 1]), int(crossesIdList[index])))
+                self.getRoadIdByTwoCrossIds(int(crossesIdList[index - 1]), int(crossesIdList[index])))
         return roadIdList
 
     def findShortestPathByMyDijkstra(self, fromCrossId, toCrossId, crossRelation, roadInstances):
@@ -202,7 +202,7 @@ class MapHelper(object):
         roadIdList = list()
         for index in range(1, len(crossesIdList)):
             roadIdList.append(
-                mapHelperVar.getRoadIdByTwoCrossIds(int(crossesIdList[index - 1]), int(crossesIdList[index])))
+                self.getRoadIdByTwoCrossIds(int(crossesIdList[index - 1]), int(crossesIdList[index])))
         return roadIdList
 
     def __dijkstra(self, fromCrossId, toCrossId, crossRelation, roadInstances):

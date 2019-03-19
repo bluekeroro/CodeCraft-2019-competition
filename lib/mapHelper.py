@@ -18,6 +18,7 @@ import networkx as nx
 
 from lib_fqy.map import Map
 from lib_fqy.road import generateRoadInstances
+from lib_tsy.findMinPath import findMinPath
 
 
 class MapHelper(object):
@@ -229,6 +230,15 @@ class MapHelper(object):
                     heappush(q, (cost + c, v2, path))
         return None
 
+    def findShortPathByTSY(self, fromCrossId, toCrossId):
+        """
+        整合tsy接口寻路接口，相对短路径
+        :param fromCrossId: str
+        :param toCrossId: str
+        :return:
+        """
+        return findMinPath(self, self.crosses, self.roads, int(fromCrossId), int(toCrossId))
+
 
 if __name__ == "__main__":
     starttime = datetime.datetime.now()
@@ -256,8 +266,9 @@ if __name__ == "__main__":
         if fromCrossId not in path:
             path[fromCrossId] = {}
         if toCrossId not in path[fromCrossId]:
-            pathTemp = mapHelperVar \
-                .findShortestPathByMyDijkstra(fromCrossId, toCrossId, trafficMap.crossRelation, roadInstances)
+            # pathTemp = mapHelperVar \
+            #     .findShortestPathByMyDijkstra(fromCrossId, toCrossId, trafficMap.crossRelation, roadInstances)
+            pathTemp = mapHelperVar.findShortPathByTSY(fromCrossId, toCrossId)
             path[fromCrossId][toCrossId] = pathTemp
         print(carId)
         carDict[carId].addDrivePath(path[fromCrossId][toCrossId])

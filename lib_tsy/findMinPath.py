@@ -114,4 +114,4 @@ if __name__ == '__main__':
     mapHelperVar = mapHelper.MapHelper(dataCross, dataRoad)
     crossesVar = Crosses(dataCross)
     roadsVar = Roads(dataRoad)
-    print(findMinPath(mapHelperVar, crossesVar, roadsVar, 1, 29))
+    print(findMinPath(mapHelperVar, crossesVar, roadsVar, 24, 26))

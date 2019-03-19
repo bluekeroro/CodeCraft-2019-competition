@@ -89,8 +89,8 @@ def helper(crossid1, crossid2, map, roads, crosslist, flag, crosses):
     for cross in crosslist:
         for dir in direct:
             if cross not in crosses.getCrossIdList():
-                print(cross)
-                print("mei 这个节点")
+                # print(cross)
+                # print("mei 这个节点")
                 continue
             newRoadId = map.getRoadIdByDirection(cross, dir)
             if newRoadId == -1:
@@ -111,7 +111,7 @@ def helper(crossid1, crossid2, map, roads, crosslist, flag, crosses):
                     nextRoad = newRoadId
             # print("newRoadId in " + dir + " is " + str(newRoadId))
     ret.append(nextRoad)
-    print(nextCross)
+    # print(nextCross)
     helper(nextCross, crossid2, map, roads, crosslist, flag, crosses)
     return
 
@@ -124,4 +124,6 @@ if __name__ == '__main__':
     mapHelperVar = mapHelper.MapHelper(dataCross, dataRoad)
     crossesVar = Crosses(dataCross)
     roadsVar = Roads(dataRoad)
+    print(findMinPath(mapHelperVar, crossesVar, roadsVar, 8, 50))
+    print(findMinPath(mapHelperVar, crossesVar, roadsVar, 51, 3))
     print(findMinPath(mapHelperVar, crossesVar, roadsVar, 24, 64)) # 24 到 64 是主程序崩溃坐标

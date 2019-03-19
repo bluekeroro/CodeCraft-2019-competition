@@ -67,7 +67,7 @@ class Map(object):
         
 
 if __name__ == '__main__':
-    configPath = '../CodeCraft-2019/config_10'
+    configPath = '../config'
     trafficMap = Map(configPath)
     print(trafficMap.crossRelation)
     print(trafficMap.roadRelation)

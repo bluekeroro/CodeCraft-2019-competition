@@ -49,13 +49,9 @@ def main():
         fromCrossId = str(carDict[carId].getCarFrom())
         toCrossId = str(carDict[carId].getCarTo())
         if fromCrossId not in path:
-            path[fromCrossId] = {}
-        if toCrossId not in path[fromCrossId]:
-            print(fromCrossId, toCrossId)
-            # pathTemp = mapHelperVar \
-            #     .findShortestPathByMyDijkstra(fromCrossId, toCrossId, trafficMap.crossRelation, roadInstances)
-            pathTemp = mapHelperVar.findShortPathByTSY(fromCrossId, toCrossId)
-            path[fromCrossId][toCrossId] = pathTemp
+            print("fromCrossId=", fromCrossId)
+            path.update(
+                mapHelperVar.findAllShortestPathByMyDijkstra(fromCrossId, trafficMap.crossRelation, roadInstances))
         print(carId)
         carDict[carId].addDrivePath(path[fromCrossId][toCrossId])
         string = str((carId, carDict[carId].getCarPlanTime(), carDict[carId].getDrivePath()))
@@ -64,7 +60,7 @@ def main():
         file.write(string + '\n')
     file.close()
     endtime = datetime.datetime.now()
-    print('运行时间:', (endtime - starttime).total_seconds())  # 运行时间: 1451.860217
+    print('运行时间:', (endtime - starttime).total_seconds())  # 运行时间:  178.803955
 
 
 # to read input file

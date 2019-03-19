@@ -18,7 +18,7 @@ import networkx as nx
 
 from lib_fqy.map import Map
 from lib_fqy.road import generateRoadInstances
-from lib_tsy.findMinPath import findMinPath
+from lib_tsy import findMinPath
 
 
 class MapHelper(object):
@@ -62,9 +62,10 @@ class MapHelper(object):
     def getRoadIdByTwoCrossIds(self, crossId1, crossId2):
         """
         根据两个相邻的路口获取其间的roadId,不考虑方向
+        该方法在实际运行中非常耗时，不建议使用，可考虑getRoadIdByTwoCrossIdsInCrossRelation
         :param crossId1: int
         :param crossId2: int
-        :return:
+        :return: int
         """
         crossIdList = [crossId1, crossId2]
         roadIdList = self.roads.getRoadIdList()
@@ -73,6 +74,17 @@ class MapHelper(object):
                     and (self.roads.getRoadToCrossByRoadId(roadId) in crossIdList):
                 return roadId
         return None
+
+    def getRoadIdByTwoCrossIdsInCrossRelation(self, fromCrossId, toCrossId, crossRelation):
+        """
+        通过fqy的crossRelation确定RoadId，效率会提高一些
+        :param fromCrossId: str
+        :param toCrossId: str
+        :param crossRelation:
+        :return: int 最后输出的答案需要是int
+        """
+        roadId = crossRelation[fromCrossId][toCrossId]
+        return int(roadId.split('-')[0])
 
     def addArrow(self, crossId, roadId, x, y, newX, newY):
         """
@@ -113,8 +125,8 @@ class MapHelper(object):
             newX = x
             newY = y + self.interval
             self.addArrow(crossId, upRoadId, x, y, newX, newY)
-            print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
-                  self.roads.getAnotherCrossIdByRoadId(crossId, upRoadId))
+            # print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
+            #       self.roads.getAnotherCrossIdByRoadId(crossId, upRoadId))
             self.showRoadIdAndLengthFunc((newX + x) / 2, (newY + y) / 2, upRoadId,
                                          self.roads.getRoadLengthByRoadId(upRoadId), showRoadId)
             self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, upRoadId), showRoadId)
@@ -124,8 +136,8 @@ class MapHelper(object):
             self.addArrow(crossId, rightRoadId, x, y, newX, newY)
             self.showRoadIdAndLengthFunc((newX + x) / 2, (newY + y) / 2, rightRoadId,
                                          self.roads.getRoadLengthByRoadId(rightRoadId), showRoadId)
-            print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
-                  self.roads.getAnotherCrossIdByRoadId(crossId, rightRoadId))
+            # print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
+            #       self.roads.getAnotherCrossIdByRoadId(crossId, rightRoadId))
             self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, rightRoadId), showRoadId)
         if downRoadId != -1:
             newX = x
@@ -133,8 +145,8 @@ class MapHelper(object):
             self.addArrow(crossId, downRoadId, x, y, newX, newY)
             self.showRoadIdAndLengthFunc((newX + x) / 2, (newY + y) / 2, downRoadId,
                                          self.roads.getRoadLengthByRoadId(downRoadId), showRoadId)
-            print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
-                  self.roads.getAnotherCrossIdByRoadId(crossId, downRoadId))
+            # print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
+            #       self.roads.getAnotherCrossIdByRoadId(crossId, downRoadId))
             self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, downRoadId), showRoadId)
         if leftRoadId != -1:
             newX = x - self.interval
@@ -142,8 +154,8 @@ class MapHelper(object):
             self.addArrow(crossId, leftRoadId, x, y, newX, newY)
             self.showRoadIdAndLengthFunc((newX + x) / 2, (newY + y) / 2, leftRoadId,
                                          self.roads.getRoadLengthByRoadId(leftRoadId), showRoadId)
-            print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
-                  self.roads.getAnotherCrossIdByRoadId(crossId, leftRoadId))
+            # print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
+            #       self.roads.getAnotherCrossIdByRoadId(crossId, leftRoadId))
             self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, leftRoadId), showRoadId)
 
     def plotMap(self, showRoadId=True):
@@ -237,18 +249,82 @@ class MapHelper(object):
         :param toCrossId: str
         :return:
         """
-        return findMinPath(self, self.crosses, self.roads, int(fromCrossId), int(toCrossId))
+        return findMinPath.findMinPath(self, self.crosses, self.roads, int(fromCrossId), int(toCrossId))
+
+    def findAllShortestPathByMyDijkstra(self, fromCrossId, crossRelation, roadInstances):
+        """
+        使用自定义的Dijkstra计算起点到所有点的最短路径，使用fqy的crossRelation和roadInstances结构
+        :param fromCrossId: str
+        :param crossRelation:
+        :param roadInstances:
+        :return: dict 起点到所有点的最短路径
+        """
+        graph_dict = {}
+        for i in crossRelation.keys():
+            graph_dict[i] = {}
+            graph_dict[i][i] = 0
+            for j in crossRelation[i].keys():
+                graph_dict[i][j] = roadInstances[crossRelation[i][j]].length
+
+        distance, pathByCrossesIdDict = self.__dijkstra_find_all_shortest_path(graph_dict, fromCrossId)
+        pathByRoadIdDict = {}
+        for i in pathByCrossesIdDict:
+            pathByRoadIdDict[i] = {}
+            for j in pathByCrossesIdDict[i]:
+                if len(pathByCrossesIdDict[i][j]) == 0:
+                    continue
+                pathByRoadIdDict[i][j] = list()
+                pathByRoadIdDict[i][j].append(
+                    self.getRoadIdByTwoCrossIdsInCrossRelation(i, pathByCrossesIdDict[i][j][0], crossRelation))
+                for k in range(0, len(pathByCrossesIdDict[i][j]) - 1):
+                    pathByRoadIdDict[i][j].append(
+                        self.getRoadIdByTwoCrossIdsInCrossRelation(pathByCrossesIdDict[i][j][k],
+                                                                   pathByCrossesIdDict[i][j][k + 1],
+                                                                   crossRelation))
+        return pathByRoadIdDict
+
+    def __dijkstra_find_all_shortest_path(self, graph, src):
+        """
+        :param graph:  dict
+        :param src:  起点
+        :return:
+        """
+        nodes = list(graph.keys())
+        visited = [src]
+        path = {src: {src: []}}
+        nodes.remove(src)
+        distance_graph = {src: 0}
+        next = src
+        pre = next
+        while nodes:
+            distance = float('inf')
+            for v in visited:
+                for d in nodes:
+                    if d not in graph[v]:
+                        continue
+                    new_dist = graph[src][v] + graph[v][d]
+                    if new_dist <= distance:
+                        distance = new_dist
+                        next = d
+                        pre = v
+                        graph[src][d] = new_dist
+            path[src][next] = [i for i in path[src][pre]]
+            path[src][next].append(next)
+            distance_graph[next] = distance
+            visited.append(next)
+            nodes.remove(next)
+        return distance_graph, path
 
 
 if __name__ == "__main__":
     starttime = datetime.datetime.now()
-    configPath = "../CodeCraft-2019/config_10"
+    configPath = "../config"
     initialData.initial(configPath)
     dataCross = pd.read_csv(configPath + '/cross.csv')
     dataRoad = pd.read_csv(configPath + '/road.csv')
     dataCar = pd.read_csv(configPath + '/car.csv')
     mapHelperVar = MapHelper(dataCross, dataRoad)
-    # mapHelperVar.plotMap(showRoadId=True)
+    mapHelperVar.plotMap(showRoadId=False)
     trafficMap = Map(configPath)
     roadInstances = generateRoadInstances(configPath)
     mapHelperVar.initialDirGraph(trafficMap.crossRelation, roadInstances)

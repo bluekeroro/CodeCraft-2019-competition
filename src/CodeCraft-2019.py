@@ -2,7 +2,7 @@ import logging
 import sys
 
 import pandas as pd
-
+import datetime
 from lib import initialData
 from lib.car import Cars, Car
 from lib.mapHelper import MapHelper
@@ -18,6 +18,7 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 def main():
+    starttime = datetime.datetime.now()
     # if len(sys.argv) != 5:
     #     logging.info('please input args: car_path, road_path, cross_path, answerPath')
     #     exit(1)
@@ -47,11 +48,12 @@ def main():
         carDict[carId] = Car(carId, carVar)
         fromCrossId = str(carDict[carId].getCarFrom())
         toCrossId = str(carDict[carId].getCarTo())
-        if not (fromCrossId in path and toCrossId in path[fromCrossId]):
+        if fromCrossId not in path:
+            path[fromCrossId] = {}
+        if toCrossId not in path[fromCrossId]:
             pathTemp = mapHelperVar \
                 .findShortestPathByMyDijkstra(fromCrossId, toCrossId, trafficMap.crossRelation, roadInstances)
             path[fromCrossId][toCrossId] = pathTemp
-            # path[fromCrossId] = {toCrossId: pathTemp}
         print(carId)
         carDict[carId].addDrivePath(path[fromCrossId][toCrossId])
         string = str((carId, carDict[carId].getCarPlanTime(), carDict[carId].getDrivePath()))
@@ -59,7 +61,8 @@ def main():
         string = string.replace(']', '')
         file.write(string + '\n')
     file.close()
-
+    endtime = datetime.datetime.now()
+    print('运行时间:', (endtime - starttime).total_seconds()) #运行时间: 1451.860217
 # to read input file
 # process
 # to write output file

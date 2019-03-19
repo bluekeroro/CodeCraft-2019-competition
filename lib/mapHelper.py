@@ -7,7 +7,7 @@
 import operator
 from collections import defaultdict
 from heapq import *
-
+import datetime
 import matplotlib.pyplot as plt
 import pandas as pd
 from lib import initialData
@@ -231,6 +231,7 @@ class MapHelper(object):
 
 
 if __name__ == "__main__":
+    starttime = datetime.datetime.now()
     configPath = "../CodeCraft-2019/config_10"
     initialData.initial(configPath)
     dataCross = pd.read_csv(configPath + '/cross.csv')
@@ -252,10 +253,12 @@ if __name__ == "__main__":
         carDict[carId] = Car(carId, carVar)
         fromCrossId = str(carDict[carId].getCarFrom())
         toCrossId = str(carDict[carId].getCarTo())
-        if not (fromCrossId in path and toCrossId in path[fromCrossId]):
+        if fromCrossId not in path:
+            path[fromCrossId] = {}
+        if toCrossId not in path[fromCrossId]:
             pathTemp = mapHelperVar \
                 .findShortestPathByMyDijkstra(fromCrossId, toCrossId, trafficMap.crossRelation, roadInstances)
-            path[fromCrossId] = {toCrossId: pathTemp}
+            path[fromCrossId][toCrossId] = pathTemp
         print(carId)
         carDict[carId].addDrivePath(path[fromCrossId][toCrossId])
         string = str((carId, carDict[carId].getCarPlanTime(), carDict[carId].getDrivePath()))
@@ -263,6 +266,9 @@ if __name__ == "__main__":
         string = string.replace(']', '')
         file.write(string + '\n')
     file.close()
+    endtime = datetime.datetime.now()
+    print('运行时间:', (endtime - starttime).total_seconds())
+
     # roadsVar = Roads(dataRoad)
     # for i in range(1, 36):
     #     for j in range(1, 36):

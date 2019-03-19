@@ -26,12 +26,12 @@ def main():
     # road_path = sys.argv[2]
     # cross_path = sys.argv[3]
     # answer_path = sys.argv[4]
-    car_path='../config/car.txt'
-    road_path='../config/road.txt'
-    cross_path='../config/cross.txt'
-    answer_path='../config/answer.txt'
+    car_path = '../config/car.txt'
+    road_path = '../config/road.txt'
+    cross_path = '../config/cross.txt'
+    answer_path = '../config/answer.txt'
 
-    configPath='../config'
+    configPath = '../config'
     initialData.initial(configPath)
     dataCross = pd.read_csv(configPath + '/cross.csv')
     dataRoad = pd.read_csv(configPath + '/road.csv')
@@ -51,6 +51,7 @@ def main():
         if fromCrossId not in path:
             path[fromCrossId] = {}
         if toCrossId not in path[fromCrossId]:
+            print(fromCrossId, toCrossId)
             pathTemp = mapHelperVar \
                 .findShortestPathByMyDijkstra(fromCrossId, toCrossId, trafficMap.crossRelation, roadInstances)
             path[fromCrossId][toCrossId] = pathTemp
@@ -62,7 +63,9 @@ def main():
         file.write(string + '\n')
     file.close()
     endtime = datetime.datetime.now()
-    print('运行时间:', (endtime - starttime).total_seconds()) #运行时间: 1451.860217
+    print('运行时间:', (endtime - starttime).total_seconds())  # 运行时间: 1451.860217
+
+
 # to read input file
 # process
 # to write output file

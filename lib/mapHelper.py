@@ -14,13 +14,13 @@ from lib import initialData
 from lib.car import Cars, Car
 from lib.cross import Crosses
 from lib.road import Roads
-import networkx as nx
+# import networkx as nx
 
 from lib_fqy.map import Map
 from lib_fqy.road import generateRoadInstances
 from lib_tsy import findMinPath
 
-
+nx='' # release下不使用networkx
 class MapHelper(object):
     def __init__(self, dataCross, dataRoad):
         """

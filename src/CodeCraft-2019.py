@@ -1,6 +1,6 @@
+#-*- coding:utf-8 -*-
 import logging
 import sys
-
 import pandas as pd
 import datetime
 from lib import initialData
@@ -10,8 +10,7 @@ from lib_fqy.map import Map
 from lib_fqy.road import generateRoadInstances
 
 logging.basicConfig(level=logging.DEBUG,
-                    filename='./../logs/CodeCraft-2019.log',
-                    # filename='../logs/CodeCraft-2019.log',
+                    filename='../logs/CodeCraft-2019.log',
                     format='[%(asctime)s] %(levelname)s [%(funcName)s: %(filename)s, %(lineno)d] %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',
                     filemode='a')
@@ -26,6 +25,14 @@ def main():
     # road_path = sys.argv[2]
     # cross_path = sys.argv[3]
     # answer_path = sys.argv[4]
+    # configPath = ''
+    # for i in range(len(car_path) - 1, -1, -1):
+    #     if car_path[i] == '/':
+    #         configPath = car_path[0:i]
+    #
+    # print(car_path, road_path, cross_path, answer_path)
+    # print(configPath)
+
     car_path = '../config/car.txt'
     road_path = '../config/road.txt'
     cross_path = '../config/cross.txt'
@@ -60,7 +67,7 @@ def main():
         file.write(string + '\n')
     file.close()
     endtime = datetime.datetime.now()
-    print('运行时间:', (endtime - starttime).total_seconds())  # 运行时间:  178.803955
+    print('运行时间:', (endtime - starttime).total_seconds())  # 运行时间:  58.1495s
 
 
 # to read input file

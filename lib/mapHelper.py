@@ -8,7 +8,7 @@ import operator
 from collections import defaultdict
 from heapq import *
 import datetime
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import pandas as pd
 from lib import initialData
 from lib.car import Cars, Car
@@ -20,7 +20,10 @@ from lib_fqy.map import Map
 from lib_fqy.road import generateRoadInstances
 from lib_tsy import findMinPath
 
-nx='' # release下不使用networkx
+plt = '' # linux環境下會報錯，暫不使用
+nx = ''  # release下不使用networkx
+
+
 class MapHelper(object):
     def __init__(self, dataCross, dataRoad):
         """
@@ -319,14 +322,14 @@ class MapHelper(object):
 if __name__ == "__main__":
     starttime = datetime.datetime.now()
     configPath = "../config"
-    initialData.initial(configPath)
+    initialData.initial(configPath+"/car.txt",configPath+"/cross.txt",configPath+"/road.txt")
     dataCross = pd.read_csv(configPath + '/cross.csv')
     dataRoad = pd.read_csv(configPath + '/road.csv')
     dataCar = pd.read_csv(configPath + '/car.csv')
     mapHelperVar = MapHelper(dataCross, dataRoad)
     mapHelperVar.plotMap(showRoadId=False)
-    trafficMap = Map(configPath)
-    roadInstances = generateRoadInstances(configPath)
+    trafficMap = Map(configPath,configPath+"/cross.txt",configPath+"/road.txt")
+    roadInstances = generateRoadInstances(configPath+"/road.txt")
     mapHelperVar.initialDirGraph(trafficMap.crossRelation, roadInstances)
     print(mapHelperVar.findShortestPathByNetworkx('2', '31'))
     print(mapHelperVar.findShortestPathByMyDijkstra('2', '31', trafficMap.crossRelation,

@@ -2,36 +2,39 @@
 
 import pandas as pd
 
+from lib.initialData import changeTXTpathToCSV
+
 
 class Map(object):
-    def __init__(self, configPath):
+    def __init__(self, configPath, crossTXTpath, roadTXTpath):
         self.configPath = configPath
-        self.crossRelation = {} # 路口的连接关系
-        self.roadRelation = {} # 道路的连接关系
-
+        self.crossRelation = {}  # 路口的连接关系
+        self.roadRelation = {}  # 道路的连接关系
+        self.crossTXTpath = crossTXTpath
+        self.roadTXTpath = roadTXTpath
         self.__build()
 
     def __build(self):
         """
         建立路口和道路的连接关系
         """
-        crossData = pd.read_csv(self.configPath + '/cross.csv')
-        roadData = pd.read_csv(self.configPath + '/road.csv')
+        crossData = pd.read_csv(changeTXTpathToCSV(self.crossTXTpath))
+        roadData = pd.read_csv(changeTXTpathToCSV(self.roadTXTpath))
 
-        self.crossRelation = {str(i):{} for i in crossData['id']}
+        self.crossRelation = {str(i): {} for i in crossData['id']}
         for index, row in roadData.iterrows():
             roadId = str(row['id'])
             src = str(row['from'])
             dst = str(row['to'])
-            self.crossRelation[src][dst]=roadId+'-1'
+            self.crossRelation[src][dst] = roadId + '-1'
             if row['isDuplex']:
-                self.crossRelation[dst][src]=roadId+'-2'
+                self.crossRelation[dst][src] = roadId + '-2'
 
         for i in self.crossRelation:
             for j in self.crossRelation[i]:
                 srcRoad = self.crossRelation[i][j]
-                r4 = crossData[crossData['id']==int(j)].iloc[0]
-                r4 = (str(r4['roadId']),str(r4['roadId.1']),str(r4['roadId.2']),str(r4['roadId.3']))
+                r4 = crossData[crossData['id'] == int(j)].iloc[0]
+                r4 = (str(r4['roadId']), str(r4['roadId.1']), str(r4['roadId.2']), str(r4['roadId.3']))
                 srcDirNum = r4.index(srcRoad[:-2])
                 self.roadRelation[srcRoad] = {}
                 for dstRoad in self.crossRelation[j].values():
@@ -64,11 +67,10 @@ class Map(object):
             return self.roadRelation[roadId]
         else:
             raise Exception("Road Id Not Exist")
-        
+
 
 if __name__ == '__main__':
     configPath = '../config'
-    trafficMap = Map(configPath)
+    trafficMap = Map(configPath,configPath + "/cross.txt", configPath + "/road.txt")
     print(trafficMap.crossRelation)
     print(trafficMap.roadRelation)
-

@@ -118,7 +118,7 @@ def helper(crossid1, crossid2, map, roads, crosslist, flag, crosses):
 
 if __name__ == '__main__':
     configPath = "../config"
-    initialData.initial(configPath)
+    initialData.initial(configPath+"/car.txt",configPath+"/cross.txt",configPath+"/road.txt")
     dataCross = pd.read_csv(configPath + '/cross.csv')
     dataRoad = pd.read_csv(configPath + '/road.csv')
     mapHelperVar = mapHelper.MapHelper(dataCross, dataRoad)

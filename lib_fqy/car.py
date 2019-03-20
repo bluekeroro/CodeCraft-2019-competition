@@ -2,6 +2,8 @@
 
 import pandas as pd
 
+from lib.initialData import changeTXTpathToCSV
+
 
 class Car(object):
     def __init__(self, **data):
@@ -19,12 +21,12 @@ class Car(object):
         self.currentLocPos = None # 当前所在距离
 
 
-def generateCarInstances(configPath):
+def generateCarInstances(carTXTpath):
     """
     生成所有车辆的实例
     """
     carSet = {}
-    carData = pd.read_csv(configPath + '/car.csv')
+    carData = pd.read_csv(changeTXTpathToCSV(carTXTpath))
     for index, row in carData.iterrows():
         data = {
             'id': str(row['id']),
@@ -39,7 +41,7 @@ def generateCarInstances(configPath):
 
 
 if __name__ == '__main__':
-    configPath = '../CodeCraft-2019/config'
-    cars = generateCarInstances(configPath)
+    carTXTpath = '../CodeCraft-2019/config/car.txt'
+    cars = generateCarInstances(carTXTpath)
     print(cars['10000'].__dict__)
 

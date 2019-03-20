@@ -137,7 +137,7 @@ class Cars(object):
 
 if __name__ == "__main__":
     configPath = "../CodeCraft-2019/config_10"
-    initialData.initial(configPath)
+    initialData.initial(configPath+"/car.txt",configPath+"/cross.txt",configPath+"/road.txt")
     dataCar = pd.read_csv(configPath + '/car.csv')
     caresVar = Cars(dataCar)
     print(caresVar.getCarIdList())

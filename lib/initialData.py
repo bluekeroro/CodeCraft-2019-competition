@@ -6,20 +6,19 @@
 """
 import pandas as pd
 
-
-def initial(configPath):
+def initial(carTxtPath, crossTxtPath, roadTxtPath):
     """
     将txt数据转为csv,以便于使用pandas读取
     :param configPath: txt数据文件路径
     :return:
     """
     # configPath = "CodeCraft-2019/config"
-    carPath = configPath + "/car.txt"
-    crossPath = configPath + "/cross.txt"
-    roadPath = configPath + "/road.txt"
-    carCSVPath = configPath + "/car.csv"
-    crossCSVPath = configPath + "/cross.csv"
-    roadCSVPath = configPath + "/road.csv"
+    carPath = carTxtPath
+    crossPath = crossTxtPath
+    roadPath = roadTxtPath
+    carCSVPath = changeTXTpathToCSV(carTxtPath)
+    crossCSVPath = changeTXTpathToCSV(crossTxtPath)
+    roadCSVPath = changeTXTpathToCSV(roadTxtPath)
     try:
         f = open(carPath, 'r')
         f1 = open(carCSVPath, 'w')
@@ -61,9 +60,21 @@ def initial(configPath):
             f1.close()
 
 
+def changeTXTpathToCSV(path):
+    """
+    將txt文件路徑換位為相同的csv文件路徑
+    :param path:
+    :return:
+    """
+    return path[:-3]+'csv'
+
+
 if __name__ == "__main__":
-    configPath = "CodeCraft-2019/config"
-    initial(configPath)
+    configPath = "../config"
+    carTxtPath = "../config/car.txt"
+    crossTxtPath = "../config/cross.txt"
+    roadTxtPath = "../config/road.txt"
+    initial(carTxtPath, crossTxtPath, roadTxtPath)
     dataCar = pd.read_csv(configPath + '/car.csv')
     dataCross = pd.read_csv(configPath + '/cross.csv')
     dataRoad = pd.read_csv(configPath + '/road.csv')

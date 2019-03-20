@@ -3,6 +3,8 @@
 import pandas as pd
 from queue import Queue
 
+from lib.initialData import changeTXTpathToCSV
+
 
 class Road(object):
     def __init__(self, **data):
@@ -16,9 +18,9 @@ class Road(object):
         self.currentLane = {i: Queue(self.length) for i in range(1, self.laneNum + 1)}  # 各车道当前存在的车辆
 
 
-def generateRoadInstances(configPath):
+def generateRoadInstances(roadTXTpath):
     roadSet = {}
-    roadData = pd.read_csv(configPath + '/road.csv')
+    roadData = pd.read_csv(changeTXTpathToCSV(roadTXTpath))
     for index, row in roadData.iterrows():
         data = {
             'id': str(row['id']) + '-1',
@@ -46,8 +48,8 @@ def generateRoadInstances(configPath):
 
 
 if __name__ == '__main__':
-    configPath = '../CodeCraft-2019/config'
-    roads = generateRoadInstances(configPath)
+    roadTXTpath = '../CodeCraft-2019/config/road.txt'
+    roads = generateRoadInstances(roadTXTpath)
     print(roads['5010-1'].__dict__)
     print(roads['5010-2'].__dict__)
     print(roads['5010-1'].length)

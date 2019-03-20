@@ -101,7 +101,7 @@ class Crosses(object):
 
 if __name__ == '__main__':
     configPath = "../CodeCraft-2019/config_10"
-    initialData.initial(configPath)
+    initialData.initial(configPath+"/car.txt",configPath+"/cross.txt",configPath+"/road.txt")
     dataCross = pd.read_csv(configPath + '/cross.csv')
     crossesVar = Crosses(dataCross)
     print(crossesVar.getCrossIdList())

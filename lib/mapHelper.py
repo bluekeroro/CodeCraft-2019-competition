@@ -22,7 +22,7 @@ from lib_fqy.road import generateRoadInstances
 from lib_tsy import findMinPath
 
 plt = '' # linux環境下會報錯，暫不使用
-nx = ''  # release下不使用networkx
+nx = '' # release下不使用networkx
 
 
 class MapHelper(object):

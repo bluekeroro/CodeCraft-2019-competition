@@ -1,12 +1,10 @@
 # -*- coding:utf-8 -*-
 import sys
 import os
-
-from lib.myLogger import MyLogger
-
 curPath = os.path.abspath(os.path.dirname(__file__))
 rootPath = os.path.split(curPath)[0]
 sys.path.append(rootPath)
+from lib.myLogger import MyLogger
 from lib.initialData import changeTXTpathToCSV
 import logging
 import pandas as pd
@@ -26,6 +24,7 @@ logging.basicConfig(level=logging.DEBUG,
 
 def main():
     starttime = datetime.datetime.now()
+    logging.info("Start!!!")
     if len(sys.argv) != 5:
         logging.info('please input args: car_path, road_path, cross_path, answerPath')
         exit(1)

@@ -2,6 +2,7 @@ import pandas as pd
 from lib import initialData
 from lib.cross import Crosses
 from lib import mapHelper
+from lib.myLogger import MyLogger
 from lib.road import Roads
 import sys
 # sys.setrecursionlimit(100000)
@@ -124,6 +125,6 @@ if __name__ == '__main__':
     mapHelperVar = mapHelper.MapHelper(dataCross, dataRoad)
     crossesVar = Crosses(dataCross)
     roadsVar = Roads(dataRoad)
-    print(findMinPath(mapHelperVar, crossesVar, roadsVar, 8, 50))
-    print(findMinPath(mapHelperVar, crossesVar, roadsVar, 51, 3))
-    print(findMinPath(mapHelperVar, crossesVar, roadsVar, 24, 64)) # 24 到 64 是主程序崩溃坐标
+    MyLogger.print(findMinPath(mapHelperVar, crossesVar, roadsVar, 8, 50))
+    MyLogger.print(findMinPath(mapHelperVar, crossesVar, roadsVar, 51, 3))
+    MyLogger.print(findMinPath(mapHelperVar, crossesVar, roadsVar, 24, 64)) # 24 到 64 是主程序崩溃坐标

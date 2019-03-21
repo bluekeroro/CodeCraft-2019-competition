@@ -3,6 +3,7 @@
 import pandas as pd
 
 from lib.initialData import changeTXTpathToCSV
+from lib.myLogger import MyLogger
 
 
 class Car(object):
@@ -43,5 +44,5 @@ def generateCarInstances(carTXTpath):
 if __name__ == '__main__':
     carTXTpath = '../CodeCraft-2019/config/car.txt'
     cars = generateCarInstances(carTXTpath)
-    print(cars['10000'].__dict__)
+    MyLogger.print(cars['10000'].__dict__)
 

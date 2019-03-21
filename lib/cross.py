@@ -6,6 +6,7 @@
 """
 import pandas as pd
 from lib import initialData
+from lib.myLogger import MyLogger
 
 
 class Cross(object):
@@ -104,6 +105,6 @@ if __name__ == '__main__':
     initialData.initial(configPath+"/car.txt",configPath+"/cross.txt",configPath+"/road.txt")
     dataCross = pd.read_csv(configPath + '/cross.csv')
     crossesVar = Crosses(dataCross)
-    print(crossesVar.getCrossIdList())
-    print(crossesVar.getUpRoadId(8), crossesVar.getRightRoadId(8), crossesVar.getDownRoadId(8),
+    MyLogger.print(crossesVar.getCrossIdList())
+    MyLogger.print(crossesVar.getUpRoadId(8), crossesVar.getRightRoadId(8), crossesVar.getDownRoadId(8),
           crossesVar.getLeftRoadId(8))

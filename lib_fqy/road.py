@@ -4,6 +4,7 @@ import pandas as pd
 from queue import Queue
 
 from lib.initialData import changeTXTpathToCSV
+from lib.myLogger import MyLogger
 
 
 class Road(object):
@@ -50,6 +51,6 @@ def generateRoadInstances(roadTXTpath):
 if __name__ == '__main__':
     roadTXTpath = '../CodeCraft-2019/config/road.txt'
     roads = generateRoadInstances(roadTXTpath)
-    print(roads['5010-1'].__dict__)
-    print(roads['5010-2'].__dict__)
-    print(roads['5010-1'].length)
+    MyLogger.print(roads['5010-1'].__dict__)
+    MyLogger.print(roads['5010-2'].__dict__)
+    MyLogger.print(roads['5010-1'].length)

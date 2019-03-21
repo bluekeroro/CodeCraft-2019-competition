@@ -13,6 +13,7 @@ import pandas as pd
 from lib import initialData
 from lib.car import Cars, Car
 from lib.cross import Crosses
+from lib.myLogger import MyLogger
 from lib.road import Roads
 # import networkx as nx
 
@@ -128,8 +129,6 @@ class MapHelper(object):
             newX = x
             newY = y + self.interval
             self.addArrow(crossId, upRoadId, x, y, newX, newY)
-            # print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
-            #       self.roads.getAnotherCrossIdByRoadId(crossId, upRoadId))
             self.showRoadIdAndLengthFunc((newX + x) / 2, (newY + y) / 2, upRoadId,
                                          self.roads.getRoadLengthByRoadId(upRoadId), showRoadId)
             self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, upRoadId), showRoadId)
@@ -139,8 +138,6 @@ class MapHelper(object):
             self.addArrow(crossId, rightRoadId, x, y, newX, newY)
             self.showRoadIdAndLengthFunc((newX + x) / 2, (newY + y) / 2, rightRoadId,
                                          self.roads.getRoadLengthByRoadId(rightRoadId), showRoadId)
-            # print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
-            #       self.roads.getAnotherCrossIdByRoadId(crossId, rightRoadId))
             self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, rightRoadId), showRoadId)
         if downRoadId != -1:
             newX = x
@@ -148,8 +145,6 @@ class MapHelper(object):
             self.addArrow(crossId, downRoadId, x, y, newX, newY)
             self.showRoadIdAndLengthFunc((newX + x) / 2, (newY + y) / 2, downRoadId,
                                          self.roads.getRoadLengthByRoadId(downRoadId), showRoadId)
-            # print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
-            #       self.roads.getAnotherCrossIdByRoadId(crossId, downRoadId))
             self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, downRoadId), showRoadId)
         if leftRoadId != -1:
             newX = x - self.interval
@@ -157,8 +152,6 @@ class MapHelper(object):
             self.addArrow(crossId, leftRoadId, x, y, newX, newY)
             self.showRoadIdAndLengthFunc((newX + x) / 2, (newY + y) / 2, leftRoadId,
                                          self.roads.getRoadLengthByRoadId(leftRoadId), showRoadId)
-            # print('x=', x, 'y=', y, 'oldCrossId=', crossId, 'newCrossId=',
-            #       self.roads.getAnotherCrossIdByRoadId(crossId, leftRoadId))
             self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, leftRoadId), showRoadId)
 
     def plotMap(self, showRoadId=True):
@@ -328,11 +321,11 @@ if __name__ == "__main__":
     dataCar = pd.read_csv(configPath + '/car.csv')
     mapHelperVar = MapHelper(dataCross, dataRoad)
     mapHelperVar.plotMap(showRoadId=False)
-    trafficMap = Map(configPath,configPath+"/cross.txt",configPath+"/road.txt")
+    trafficMap = Map(configPath+"/cross.txt",configPath+"/road.txt")
     roadInstances = generateRoadInstances(configPath+"/road.txt")
     mapHelperVar.initialDirGraph(trafficMap.crossRelation, roadInstances)
-    print(mapHelperVar.findShortestPathByNetworkx('2', '31'))
-    print(mapHelperVar.findShortestPathByMyDijkstra('2', '31', trafficMap.crossRelation,
+    MyLogger.print(mapHelperVar.findShortestPathByNetworkx('2', '31'))
+    MyLogger.print(mapHelperVar.findShortestPathByMyDijkstra('2', '31', trafficMap.crossRelation,
                                                     roadInstances))
     carDict = {}
     carVar = Cars(dataCar)
@@ -349,7 +342,7 @@ if __name__ == "__main__":
             #     .findShortestPathByMyDijkstra(fromCrossId, toCrossId, trafficMap.crossRelation, roadInstances)
             pathTemp = mapHelperVar.findShortPathByTSY(fromCrossId, toCrossId)
             path[fromCrossId][toCrossId] = pathTemp
-        print(carId)
+        MyLogger.print(carId)
         carDict[carId].addDrivePath(path[fromCrossId][toCrossId])
         string = str((carId, carDict[carId].getCarPlanTime(), carDict[carId].getDrivePath()))
         string = string.replace('[', '')
@@ -357,7 +350,7 @@ if __name__ == "__main__":
         file.write(string + '\n')
     file.close()
     endtime = datetime.datetime.now()
-    print('运行时间:', (endtime - starttime).total_seconds())
+    MyLogger.print('运行时间:', (endtime - starttime).total_seconds())
 
     # roadsVar = Roads(dataRoad)
     # for i in range(1, 36):

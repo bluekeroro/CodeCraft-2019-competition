@@ -3,11 +3,11 @@
 import pandas as pd
 
 from lib.initialData import changeTXTpathToCSV
+from lib.myLogger import MyLogger
 
 
 class Map(object):
-    def __init__(self, configPath, crossTXTpath, roadTXTpath):
-        self.configPath = configPath
+    def __init__(self, crossTXTpath, roadTXTpath):
         self.crossRelation = {}  # 路口的连接关系
         self.roadRelation = {}  # 道路的连接关系
         self.crossTXTpath = crossTXTpath
@@ -71,6 +71,6 @@ class Map(object):
 
 if __name__ == '__main__':
     configPath = '../config'
-    trafficMap = Map(configPath,configPath + "/cross.txt", configPath + "/road.txt")
-    print(trafficMap.crossRelation)
-    print(trafficMap.roadRelation)
+    trafficMap = Map(configPath + "/cross.txt", configPath + "/road.txt")
+    MyLogger.print(trafficMap.crossRelation)
+    MyLogger.print(trafficMap.roadRelation)

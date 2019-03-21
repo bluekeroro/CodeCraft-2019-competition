@@ -6,6 +6,7 @@
 """
 import pandas as pd
 from lib import initialData
+from lib.myLogger import MyLogger
 
 
 class Road(object):
@@ -158,12 +159,12 @@ if __name__ == '__main__':
     initialData.initial(configPath+"/car.txt",configPath+"/cross.txt",configPath+"/road.txt")
     dataRoad = pd.read_csv(configPath + '/road.csv')
     roadsVar = Roads(dataRoad)
-    print(roadsVar.getRoadIdList())
-    print(roadsVar.getRoadLengthByRoadId(5014)
+    MyLogger.print(roadsVar.getRoadIdList())
+    MyLogger.print(roadsVar.getRoadLengthByRoadId(5014)
           , roadsVar.getRoadLimitSpeedByRoadId(5014)
           , roadsVar.getRoadChannelByRoadId(5014)
           , roadsVar.getRoadFromCrossByRoadId(5014)
           , roadsVar.getRoadToCrossByRoadId(5014)
           , roadsVar.isDuplexByRoadId(5014))
     roadIdList = [5000, 5006, 5012, 5018, 5023, 5024, 5030, 5036, 5042, 5052]
-    print(roadsVar.getSumRoadLength(roadIdList))
+    MyLogger.print(roadsVar.getSumRoadLength(roadIdList))

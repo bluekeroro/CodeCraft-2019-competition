@@ -6,6 +6,9 @@
 """
 import pandas as pd
 
+from lib.myLogger import MyLogger
+
+
 def initial(carTxtPath, crossTxtPath, roadTxtPath):
     """
     将txt数据转为csv,以便于使用pandas读取
@@ -78,6 +81,6 @@ if __name__ == "__main__":
     dataCar = pd.read_csv(configPath + '/car.csv')
     dataCross = pd.read_csv(configPath + '/cross.csv')
     dataRoad = pd.read_csv(configPath + '/road.csv')
-    print(dataCar.head(5))
-    print(dataCross.head(5))
-    print(dataRoad.head(5))
+    MyLogger.print(dataCar.head(5))
+    MyLogger.print(dataCross.head(5))
+    MyLogger.print(dataRoad.head(5))

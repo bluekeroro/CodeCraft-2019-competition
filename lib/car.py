@@ -6,6 +6,7 @@
 """
 import pandas as pd
 from lib import initialData
+from lib.myLogger import MyLogger
 
 
 class Car(object):
@@ -140,13 +141,13 @@ if __name__ == "__main__":
     initialData.initial(configPath+"/car.txt",configPath+"/cross.txt",configPath+"/road.txt")
     dataCar = pd.read_csv(configPath + '/car.csv')
     caresVar = Cars(dataCar)
-    print(caresVar.getCarIdList())
-    print(caresVar.getCarFromByCarId(10013)
+    MyLogger.print(caresVar.getCarIdList())
+    MyLogger.print(caresVar.getCarFromByCarId(10013)
           , caresVar.getCarToByCarId(10013)
           , caresVar.getCarLargestSpeedByCarId(10013)
           , caresVar.getCarPlanTimeByCarId(10013))
     carVar = Car(12047, caresVar)
-    print(carVar.getCarFrom()
+    MyLogger.print(carVar.getCarFrom()
           , carVar.getCarTo()
           , carVar.getCarLargestSpeed()
           , carVar.getCarPlanTime())

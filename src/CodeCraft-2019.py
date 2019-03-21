@@ -2,11 +2,12 @@
 import sys
 import os
 
-from lib.initialData import changeTXTpathToCSV
+from lib.myLogger import MyLogger
 
 curPath = os.path.abspath(os.path.dirname(__file__))
 rootPath = os.path.split(curPath)[0]
 sys.path.append(rootPath)
+from lib.initialData import changeTXTpathToCSV
 import logging
 import pandas as pd
 import datetime
@@ -37,23 +38,22 @@ def main():
         if car_path[i] == '/':
             configPath = car_path[0:i]
 
-    print(car_path, road_path, cross_path, answer_path)
-    print(configPath)
+    MyLogger.print(car_path, road_path, cross_path, answer_path)
+    MyLogger.print(configPath)
 
     # car_path = '../config/car.txt'
     # road_path = '../config/road.txt'
     # cross_path = '../config/cross.txt'
     # answer_path = '../config/answer.txt'
-    #
-    # configPath = '../config'
+
     initialData.initial(car_path, cross_path, road_path)
     dataCross = pd.read_csv(changeTXTpathToCSV(cross_path))
     dataRoad = pd.read_csv(changeTXTpathToCSV(road_path))
     dataCar = pd.read_csv(changeTXTpathToCSV(car_path))
     mapHelperVar = MapHelper(dataCross, dataRoad)
-    trafficMap = Map(configPath, cross_path, road_path)
+    trafficMap = Map(cross_path, road_path)
     roadInstances = generateRoadInstances(road_path)
-    mapHelperVar.initialDirGraph(trafficMap.crossRelation, roadInstances)
+    # mapHelperVar.initialDirGraph(trafficMap.crossRelation, roadInstances)
     carDict = {}
     carVar = Cars(dataCar)
     file = open(answer_path, 'w')
@@ -63,10 +63,10 @@ def main():
         fromCrossId = str(carDict[carId].getCarFrom())
         toCrossId = str(carDict[carId].getCarTo())
         if fromCrossId not in path:
-            print("fromCrossId=", fromCrossId)
+            MyLogger.print("fromCrossId=", fromCrossId)
             path.update(
                 mapHelperVar.findAllShortestPathByMyDijkstra(fromCrossId, trafficMap.crossRelation, roadInstances))
-        print(carId)
+        MyLogger.print(carId)
         carDict[carId].addDrivePath(path[fromCrossId][toCrossId])
         string = str((carId, carDict[carId].getCarPlanTime(), carDict[carId].getDrivePath()))
         string = string.replace('[', '')
@@ -74,7 +74,7 @@ def main():
         file.write(string + '\n')
     file.close()
     endtime = datetime.datetime.now()
-    print('运行时间:', (endtime - starttime).total_seconds())  # 运行时间:  58.1495s
+    MyLogger.print('运行时间:', (endtime - starttime).total_seconds())  # 运行时间:  58.1495s
 
 
 # to read input file

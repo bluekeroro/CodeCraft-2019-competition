@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import sys
 import os
+
 curPath = os.path.abspath(os.path.dirname(__file__))
 rootPath = os.path.split(curPath)[0]
 sys.path.append(rootPath)
@@ -15,18 +16,18 @@ from lib.mapHelper import MapHelper
 from lib_fqy.map import Map
 from lib_fqy.road import generateRoadInstances
 
-logging.basicConfig(level=logging.DEBUG,
-                    filename='../logs/CodeCraft-2019.log',
-                    format='[%(asctime)s] %(levelname)s [%(funcName)s: %(filename)s, %(lineno)d] %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',
-                    filemode='a')
+# logging.basicConfig(level=logging.DEBUG,
+#                     filename='../logs/CodeCraft-2019.log',
+#                     format='[%(asctime)s] %(levelname)s [%(funcName)s: %(filename)s, %(lineno)d] %(message)s',
+#                     datefmt='%Y-%m-%d %H:%M:%S',
+#                     filemode='a')
 
 
 def main():
     starttime = datetime.datetime.now()
-    logging.info("Start!!!")
+    # logging.info("Start!!!")
     if len(sys.argv) != 5:
-        logging.info('please input args: car_path, road_path, cross_path, answerPath')
+        # logging.info('please input args: car_path, road_path, cross_path, answerPath')
         exit(1)
     car_path = sys.argv[1]
     road_path = sys.argv[2]

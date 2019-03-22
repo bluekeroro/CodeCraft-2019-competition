@@ -10,12 +10,11 @@ from lib.myLogger import MyLogger
 
 
 class Car(object):
-    def __init__(self, carId, cares):
+    def __init__(self, carId):
         self.__carId = carId
-        self.__cares = cares
         self.__currentSpeed = 0  # 初始车辆的速度为零
         self.__drivePath = list()  # 车辆已经行驶及正在行驶的路径
-        if not (carId in cares.getCarIdList()):
+        if not (carId in Cars.getCarIdList()):
             raise RuntimeError("Invalid param.")
 
     def getCarId(self):
@@ -30,28 +29,28 @@ class Car(object):
         获取其始发地
         :return:
         """
-        return self.__cares.getCarFromByCarId(self.__carId)
+        return Cars.getCarFromByCarId(self.__carId)
 
     def getCarTo(self):
         """
         获取其目的地
         :return:
         """
-        return self.__cares.getCarToByCarId(self.__carId)
+        return Cars.getCarToByCarId(self.__carId)
 
     def getCarLargestSpeed(self):
         """
         获取其最高速度
         :return:
         """
-        return self.__cares.getCarLargestSpeedByCarId(self.__carId)
+        return Cars.getCarLargestSpeedByCarId(self.__carId)
 
     def getCarPlanTime(self):
         """
         获取其出发时间
         :return:
         """
-        return self.__cares.getCarPlanTimeByCarId(self.__carId)
+        return Cars.getCarPlanTimeByCarId(self.__carId)
 
     def getCarCurrentSpeed(self):
         """
@@ -93,61 +92,103 @@ class Car(object):
 
 
 class Cars(object):
-    def __init__(self, dataCar):
-        self.dataCar = dataCar
+    dataCar = None
 
-    def getCarIdList(self):
+    @classmethod
+    def initial(cls, dataCar):
+        cls.dataCar = dataCar
+
+    @classmethod
+    def getCarIdList(cls):
         """
         获取全部的carId
         :return: list类型
         """
-        return list(self.dataCar['id'])
+        return list(cls.dataCar['id'])
 
-    def getCarFromByCarId(self, carId):
+    @classmethod
+    def getCarFromByCarId(cls, carId):
         """
         根据carId获取其始发地
         :param carId:
         :return:
         """
-        return list(self.dataCar[self.dataCar['id'] == carId]['from'])[0]
+        return list(cls.dataCar[cls.dataCar['id'] == carId]['from'])[0]
 
-    def getCarToByCarId(self, carId):
+    @classmethod
+    def getCarToByCarId(cls, carId):
         """
         根据carId获取其目的地
         :param carId:
         :return:
         """
-        return list(self.dataCar[self.dataCar['id'] == carId]['to'])[0]
+        return list(cls.dataCar[cls.dataCar['id'] == carId]['to'])[0]
 
-    def getCarLargestSpeedByCarId(self, carId):
+    @classmethod
+    def getCarLargestSpeedByCarId(cls, carId):
         """
         根据carId获取其最高速度
         :param carId:
         :return:
         """
-        return list(self.dataCar[self.dataCar['id'] == carId]['speed'])[0]
+        return list(cls.dataCar[cls.dataCar['id'] == carId]['speed'])[0]
 
-    def getCarPlanTimeByCarId(self, carId):
+    @classmethod
+    def getCarPlanTimeByCarId(cls, carId):
         """
         根据carId获取其出发时间
         :param carId:
         :return:
         """
-        return list(self.dataCar[self.dataCar['id'] == carId]['planTime'])[0]
+        return list(cls.dataCar[cls.dataCar['id'] == carId]['planTime'])[0]
+
+    @classmethod
+    def getCarPlanTimeMin(cls):
+        """
+        获取全部数据的最小值
+        :return:
+        """
+        return cls.dataCar['planTime'].min()
+
+    @classmethod
+    def getCarPlanTimeMax(cls):
+        """
+        获取全部数据的最大值
+        :return:
+        """
+        return cls.dataCar['planTime'].max()
+
+    @classmethod
+    def getCarSpeedMin(cls):
+        """
+        获取全部数据的最小值
+        :param carId:
+        :return:
+        """
+        return cls.dataCar['Speed'].min()
+
+    @classmethod
+    def getCarSpeedMax(cls):
+        """
+        获取全部数据的最大值
+        :return:
+        """
+        return cls.dataCar['Speed'].max()
 
 
 if __name__ == "__main__":
-    configPath = "../CodeCraft-2019/config_10"
-    initialData.initial(configPath+"/car.txt",configPath+"/cross.txt",configPath+"/road.txt")
-    dataCar = pd.read_csv(configPath + '/car.csv')
-    caresVar = Cars(dataCar)
-    MyLogger.print(caresVar.getCarIdList())
-    MyLogger.print(caresVar.getCarFromByCarId(10013)
-          , caresVar.getCarToByCarId(10013)
-          , caresVar.getCarLargestSpeedByCarId(10013)
-          , caresVar.getCarPlanTimeByCarId(10013))
-    carVar = Car(12047, caresVar)
+    configPath = "../config"
+    initialData.initial(configPath + "/car.txt", configPath + "/cross.txt", configPath + "/road.txt")
+    # dataCar = pd.read_csv(configPath + '/car.csv')
+    MyLogger.print(Cars.getCarIdList())
+    MyLogger.print(Cars.getCarFromByCarId(10013)
+                   , Cars.getCarToByCarId(10013)
+                   , Cars.getCarLargestSpeedByCarId(10013)
+                   , Cars.getCarPlanTimeByCarId(10013))
+    carVar = Car(12047)
     MyLogger.print(carVar.getCarFrom()
-          , carVar.getCarTo()
-          , carVar.getCarLargestSpeed()
-          , carVar.getCarPlanTime())
+                   , carVar.getCarTo()
+                   , carVar.getCarLargestSpeed()
+                   , carVar.getCarPlanTime())
+    MyLogger.print('速度最小值', Cars.getCarSpeedMin(), '速度最大值', Cars.getCarSpeedMax())
+    MyLogger.print('计划时间最小值', Cars.getCarPlanTimeMin(), '计划时间最大值', Cars.getCarPlanTimeMax())

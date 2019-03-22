@@ -10,10 +10,9 @@ from lib.myLogger import MyLogger
 
 
 class Cross(object):
-    def __init__(self, crossId, crosses):
+    def __init__(self, crossId):
         self.__crossId = crossId
-        self.__crosses = crosses
-        if not (crossId in crosses.getCrossIdList()):
+        if not (crossId in Crosses.getCrossIdList()):
             raise RuntimeError("Invalid param.")
 
     def getCrossId(self):
@@ -29,7 +28,7 @@ class Cross(object):
         :param crossId:
         :return:
         """
-        return self.__crosses.getUpRoadId(self.__crossId)
+        return Crosses.getUpRoadId(self.__crossId)
 
     def getRightRoadId(self):
         """
@@ -37,7 +36,7 @@ class Cross(object):
         :param crossId:
         :return:
         """
-        return self.__crosses.getRightRoadId(self.__crossId)
+        return Crosses.getRightRoadId(self.__crossId)
 
     def getDownRoadId(self):
         """
@@ -45,7 +44,7 @@ class Cross(object):
         :param crossId:
         :return:
         """
-        return self.__crosses.getDownRoadId(self.__crossId)
+        return Crosses.getDownRoadId(self.__crossId)
 
     def getLeftRoadId(self):
         """
@@ -53,58 +52,65 @@ class Cross(object):
         :param crossId:
         :return:
         """
-        return self.__crosses.getLeftRoadId(self.__crossId)
+        return Crosses.getLeftRoadId(self.__crossId)
 
 
 class Crosses(object):
-    def __init__(self, dataCross):
-        self.dataCross = dataCross
+    dataCross = None
 
-    def getCrossIdList(self):
+    @classmethod
+    def initial(cls, dataCross):
+        cls.dataCross = dataCross
+
+    @classmethod
+    def getCrossIdList(cls):
         """
         获取全部的CrossId
         :return: list类型
         """
-        return list(self.dataCross['id'])
+        return list(cls.dataCross['id'])
 
-    def getUpRoadId(self, crossId):
+    @classmethod
+    def getUpRoadId(cls, crossId):
         """
         根据crossId获取上边路径的RoadId
         :param crossId:
         :return:
         """
-        return list(self.dataCross[self.dataCross['id'] == crossId]['roadId'])[0]
+        return list(cls.dataCross[cls.dataCross['id'] == crossId]['roadId'])[0]
 
-    def getRightRoadId(self, crossId):
+    @classmethod
+    def getRightRoadId(cls, crossId):
         """
         根据crossId获取右边路径的RoadId
         :param crossId:
         :return:
         """
-        return list(self.dataCross[self.dataCross['id'] == crossId]['roadId.1'])[0]
+        return list(cls.dataCross[cls.dataCross['id'] == crossId]['roadId.1'])[0]
 
-    def getDownRoadId(self, crossId):
+    @classmethod
+    def getDownRoadId(cls, crossId):
         """
         根据crossId获取下边路径的RoadId
         :param crossId:
         :return:
         """
-        return list(self.dataCross[self.dataCross['id'] == crossId]['roadId.2'])[0]
+        return list(cls.dataCross[cls.dataCross['id'] == crossId]['roadId.2'])[0]
 
-    def getLeftRoadId(self, crossId):
+    @classmethod
+    def getLeftRoadId(cls, crossId):
         """
         根据crossId获取左边路径的RoadId
         :param crossId:
         :return:
         """
-        return list(self.dataCross[self.dataCross['id'] == crossId]['roadId.3'])[0]
+        return list(cls.dataCross[cls.dataCross['id'] == crossId]['roadId.3'])[0]
 
 
 if __name__ == '__main__':
     configPath = "../CodeCraft-2019/config_10"
-    initialData.initial(configPath+"/car.txt",configPath+"/cross.txt",configPath+"/road.txt")
+    initialData.initial(configPath + "/car.txt", configPath + "/cross.txt", configPath + "/road.txt")
     dataCross = pd.read_csv(configPath + '/cross.csv')
-    crossesVar = Crosses(dataCross)
-    MyLogger.print(crossesVar.getCrossIdList())
-    MyLogger.print(crossesVar.getUpRoadId(8), crossesVar.getRightRoadId(8), crossesVar.getDownRoadId(8),
-          crossesVar.getLeftRoadId(8))
+    MyLogger.print(Crosses.getCrossIdList())
+    MyLogger.print(Crosses.getUpRoadId(8), Crosses.getRightRoadId(8), Crosses.getDownRoadId(8),
+                   Crosses.getLeftRoadId(8))

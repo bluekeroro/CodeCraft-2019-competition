@@ -31,8 +31,6 @@ class MapHelper(object):
         :param dataCross: dataFrame cross数据
         :param dataRoad: dataFrame road数据
         """
-        self.crosses = Crosses(dataCross)
-        self.roads = Roads(dataRoad)
         self.hasAddMap = {}
         self.interval = 20
         self.font1 = {'family': 'Times New Roman',
@@ -50,16 +48,16 @@ class MapHelper(object):
         """
         roadId = None
         if direction == 'up':
-            roadId = self.crosses.getUpRoadId(crossId)
+            roadId = Crosses.getUpRoadId(crossId)
         elif direction == 'right':
-            roadId = self.crosses.getRightRoadId(crossId)
+            roadId = Crosses.getRightRoadId(crossId)
         elif direction == 'down':
-            roadId = self.crosses.getDownRoadId(crossId)
+            roadId = Crosses.getDownRoadId(crossId)
         elif direction == 'left':
-            roadId = self.crosses.getLeftRoadId(crossId)
+            roadId = Crosses.getLeftRoadId(crossId)
         if roadId is None or roadId == -1:
             return -1
-        if (not self.roads.isDuplexByRoadId(roadId)) and self.roads.getRoadFromCrossByRoadId(roadId) != crossId:
+        if (not Roads.isDuplexByRoadId(roadId)) and Roads.getRoadFromCrossByRoadId(roadId) != crossId:
             return -1
         return roadId
 
@@ -72,10 +70,10 @@ class MapHelper(object):
         :return: int
         """
         crossIdList = [crossId1, crossId2]
-        roadIdList = self.roads.getRoadIdList()
+        roadIdList = Roads.getRoadIdList()
         for roadId in roadIdList:
-            if (self.roads.getRoadFromCrossByRoadId(roadId) in crossIdList) \
-                    and (self.roads.getRoadToCrossByRoadId(roadId) in crossIdList):
+            if (Roads.getRoadFromCrossByRoadId(roadId) in crossIdList) \
+                    and (Roads.getRoadToCrossByRoadId(roadId) in crossIdList):
                 return roadId
         return None
 
@@ -105,7 +103,7 @@ class MapHelper(object):
         head_width = 6 * width  # 3
         head_length = 2.5 * head_width  # 1.5
         if (crossId is None or roadId is None) \
-                or (self.roads.getRoadFromCrossByRoadId(roadId) is crossId or self.roads.isDuplexByRoadId(roadId)):
+                or (Roads.getRoadFromCrossByRoadId(roadId) is crossId or Roads.isDuplexByRoadId(roadId)):
             plt.arrow(x, y, newX - x, newY - y, color='r', width=width, head_width=head_width, head_length=head_length,
                       length_includes_head=True)
 
@@ -121,38 +119,38 @@ class MapHelper(object):
         plt.scatter(x, y, color='', marker='o', edgecolors='g', s=200)
         plt.text(x, y, crossId)
         self.hasAddMap[crossId] = True
-        upRoadId = self.crosses.getUpRoadId(crossId)
-        rightRoadId = self.crosses.getRightRoadId(crossId)
-        downRoadId = self.crosses.getDownRoadId(crossId)
-        leftRoadId = self.crosses.getLeftRoadId(crossId)
+        upRoadId = Crosses.getUpRoadId(crossId)
+        rightRoadId = Crosses.getRightRoadId(crossId)
+        downRoadId = Crosses.getDownRoadId(crossId)
+        leftRoadId = Crosses.getLeftRoadId(crossId)
         if upRoadId != -1:
             newX = x
             newY = y + self.interval
             self.addArrow(crossId, upRoadId, x, y, newX, newY)
             self.showRoadIdAndLengthFunc((newX + x) / 2, (newY + y) / 2, upRoadId,
-                                         self.roads.getRoadLengthByRoadId(upRoadId), showRoadId)
-            self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, upRoadId), showRoadId)
+                                         Roads.getRoadLengthByRoadId(upRoadId), showRoadId)
+            self.__dfs(newX, newY, Roads.getAnotherCrossIdByRoadId(crossId, upRoadId), showRoadId)
         if rightRoadId != -1:
             newX = x + self.interval
             newY = y
             self.addArrow(crossId, rightRoadId, x, y, newX, newY)
             self.showRoadIdAndLengthFunc((newX + x) / 2, (newY + y) / 2, rightRoadId,
-                                         self.roads.getRoadLengthByRoadId(rightRoadId), showRoadId)
-            self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, rightRoadId), showRoadId)
+                                         Roads.getRoadLengthByRoadId(rightRoadId), showRoadId)
+            self.__dfs(newX, newY, Roads.getAnotherCrossIdByRoadId(crossId, rightRoadId), showRoadId)
         if downRoadId != -1:
             newX = x
             newY = y - self.interval
             self.addArrow(crossId, downRoadId, x, y, newX, newY)
             self.showRoadIdAndLengthFunc((newX + x) / 2, (newY + y) / 2, downRoadId,
-                                         self.roads.getRoadLengthByRoadId(downRoadId), showRoadId)
-            self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, downRoadId), showRoadId)
+                                         Roads.getRoadLengthByRoadId(downRoadId), showRoadId)
+            self.__dfs(newX, newY,Roads.getAnotherCrossIdByRoadId(crossId, downRoadId), showRoadId)
         if leftRoadId != -1:
             newX = x - self.interval
             newY = y
             self.addArrow(crossId, leftRoadId, x, y, newX, newY)
             self.showRoadIdAndLengthFunc((newX + x) / 2, (newY + y) / 2, leftRoadId,
-                                         self.roads.getRoadLengthByRoadId(leftRoadId), showRoadId)
-            self.__dfs(newX, newY, self.roads.getAnotherCrossIdByRoadId(crossId, leftRoadId), showRoadId)
+                                         Roads.getRoadLengthByRoadId(leftRoadId), showRoadId)
+            self.__dfs(newX, newY, Roads.getAnotherCrossIdByRoadId(crossId, leftRoadId), showRoadId)
 
     def plotMap(self, showRoadId=True):
         """
@@ -161,7 +159,7 @@ class MapHelper(object):
         :param showRoadId: 决定是否显示RoadId和长度
         :return:
         """
-        self.__dfs(0, 0, self.crosses.getCrossIdList()[0], showRoadId)
+        self.__dfs(0, 0, Crosses.getCrossIdList()[0], showRoadId)
         plt.show()
 
     def initialDirGraph(self, crossRelation, roadInstances):
@@ -245,7 +243,7 @@ class MapHelper(object):
         :param toCrossId: str
         :return:
         """
-        return findMinPath.findMinPath(self, self.crosses, self.roads, int(fromCrossId), int(toCrossId))
+        return findMinPath.findMinPath(self, Crosses, Roads, int(fromCrossId), int(toCrossId))
 
     def findAllShortestPathByMyDijkstra(self, fromCrossId, crossRelation, roadInstances):
         """
@@ -328,11 +326,10 @@ if __name__ == "__main__":
     MyLogger.print(mapHelperVar.findShortestPathByMyDijkstra('2', '31', trafficMap.crossRelation,
                                                     roadInstances))
     carDict = {}
-    carVar = Cars(dataCar)
     file = open(configPath + '/answer.txt', 'w')
     path = {}
-    for carId in carVar.getCarIdList():
-        carDict[carId] = Car(carId, carVar)
+    for carId in Cars.getCarIdList():
+        carDict[carId] = Car(carId)
         fromCrossId = str(carDict[carId].getCarFrom())
         toCrossId = str(carDict[carId].getCarTo())
         if fromCrossId not in path:

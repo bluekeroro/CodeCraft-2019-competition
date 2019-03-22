@@ -6,7 +6,8 @@
 """
 import pandas as pd
 
-from lib.myLogger import MyLogger
+from lib import car, cross, road
+from lib import myLogger
 
 
 def initial(carTxtPath, crossTxtPath, roadTxtPath):
@@ -61,6 +62,10 @@ def initial(carTxtPath, crossTxtPath, roadTxtPath):
             f.close()
         if f1:
             f1.close()
+    car.Cars.initial(pd.read_csv(carCSVPath))
+    cross.Crosses.initial(pd.read_csv(crossCSVPath))
+    road.Roads.initial(pd.read_csv(roadCSVPath))
+
 
 
 def changeTXTpathToCSV(path):
@@ -69,7 +74,7 @@ def changeTXTpathToCSV(path):
     :param path:
     :return:
     """
-    return path[:-3]+'csv'
+    return path[:-3] + 'csv'
 
 
 if __name__ == "__main__":
@@ -81,6 +86,6 @@ if __name__ == "__main__":
     dataCar = pd.read_csv(configPath + '/car.csv')
     dataCross = pd.read_csv(configPath + '/cross.csv')
     dataRoad = pd.read_csv(configPath + '/road.csv')
-    MyLogger.print(dataCar.head(5))
-    MyLogger.print(dataCross.head(5))
-    MyLogger.print(dataRoad.head(5))
+    myLogger.MyLogger.print(dataCar.head(5))
+    myLogger.MyLogger.print(dataCross.head(5))
+    myLogger.MyLogger.print(dataRoad.head(5))

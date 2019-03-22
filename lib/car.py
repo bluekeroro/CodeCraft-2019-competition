@@ -165,7 +165,7 @@ class Cars(object):
         :param carId:
         :return:
         """
-        return cls.dataCar['Speed'].min()
+        return cls.dataCar['speed'].min()
 
     @classmethod
     def getCarSpeedMax(cls):
@@ -173,13 +173,13 @@ class Cars(object):
         获取全部数据的最大值
         :return:
         """
-        return cls.dataCar['Speed'].max()
+        return cls.dataCar['speed'].max()
 
 
 if __name__ == "__main__":
     configPath = "../config"
     initialData.initial(configPath + "/car.txt", configPath + "/cross.txt", configPath + "/road.txt")
-    # dataCar = pd.read_csv(configPath + '/car.csv')
+    # 会报错，因为声明了静态类，不可直接运行该文件，需要在其他地方调用才可以
     MyLogger.print(Cars.getCarIdList())
     MyLogger.print(Cars.getCarFromByCarId(10013)
                    , Cars.getCarToByCarId(10013)

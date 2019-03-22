@@ -16,6 +16,7 @@ from lib.mapHelper import MapHelper
 from lib_fqy.map import Map
 from lib_fqy.road import generateRoadInstances
 
+
 # logging.basicConfig(level=logging.DEBUG,
 #                     filename='../logs/CodeCraft-2019.log',
 #                     format='[%(asctime)s] %(levelname)s [%(funcName)s: %(filename)s, %(lineno)d] %(message)s',
@@ -28,8 +29,16 @@ def planTimeWeighted(car):
     :param car:
     :return: int
     """
-    pass
-    # car.getCarPlanTime()+
+    planTime = car.getCarPlanTime()
+    speed = car.getCarLargestSpeed()
+    planTimeMin = Cars.getCarPlanTimeMin()
+    planTimeMax = Cars.getCarPlanTimeMax()
+    speedMin = Cars.getCarSpeedMin()
+    speedMax = Cars.getCarSpeedMax()
+    temp = (speed - speedMin) / speedMax * (planTimeMax - planTimeMin)
+    if temp > planTime:
+        planTime = temp
+    return planTime
 
 
 def main():
@@ -56,10 +65,10 @@ def main():
     answer_path = '../config/answer.txt'
 
     initialData.initial(car_path, cross_path, road_path)
-    dataCross = pd.read_csv(changeTXTpathToCSV(cross_path))
-    dataRoad = pd.read_csv(changeTXTpathToCSV(road_path))
-    dataCar = pd.read_csv(changeTXTpathToCSV(car_path))
-    mapHelperVar = MapHelper(dataCross, dataRoad)
+    # dataCross = pd.read_csv(changeTXTpathToCSV(cross_path))
+    # dataRoad = pd.read_csv(changeTXTpathToCSV(road_path))
+    # dataCar = pd.read_csv(changeTXTpathToCSV(car_path))
+    mapHelperVar = MapHelper()
     trafficMap = Map(cross_path, road_path)
     roadInstances = generateRoadInstances(road_path)
     # mapHelperVar.initialDirGraph(trafficMap.crossRelation, roadInstances)
@@ -76,7 +85,7 @@ def main():
                 mapHelperVar.findAllShortestPathByMyDijkstra(fromCrossId, trafficMap.crossRelation, roadInstances))
         MyLogger.print(carId)
         carDict[carId].addDrivePath(path[fromCrossId][toCrossId])
-        string = str((carId,carDict[carId].getCarPlanTime(), carDict[carId].getDrivePath()))
+        string = str((carId, planTimeWeighted(carDict[carId]), carDict[carId].getDrivePath()))
         string = string.replace('[', '')
         string = string.replace(']', '')
         file.write(string + '\n')

@@ -166,6 +166,7 @@ class Roads(object):
 
 
 if __name__ == '__main__':
+    # 会报错，因为声明了静态类，不可直接运行该文件，需要在其他地方调用才可以
     configPath = "../CodeCraft-2019/config_10"
     initialData.initial(configPath + "/car.txt", configPath + "/cross.txt", configPath + "/road.txt")
     MyLogger.print(Roads.getRoadIdList())

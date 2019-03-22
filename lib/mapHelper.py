@@ -26,7 +26,7 @@ nx = '' # release下不使用networkx
 
 
 class MapHelper(object):
-    def __init__(self, dataCross, dataRoad):
+    def __init__(self):
         """
         :param dataCross: dataFrame cross数据
         :param dataRoad: dataFrame road数据
@@ -317,7 +317,7 @@ if __name__ == "__main__":
     dataCross = pd.read_csv(configPath + '/cross.csv')
     dataRoad = pd.read_csv(configPath + '/road.csv')
     dataCar = pd.read_csv(configPath + '/car.csv')
-    mapHelperVar = MapHelper(dataCross, dataRoad)
+    mapHelperVar = MapHelper()
     mapHelperVar.plotMap(showRoadId=False)
     trafficMap = Map(configPath+"/cross.txt",configPath+"/road.txt")
     roadInstances = generateRoadInstances(configPath+"/road.txt")

@@ -35,7 +35,7 @@ def planTimeWeighted(car):
     planTimeMax = Cars.getCarPlanTimeMax()
     speedMin = Cars.getCarSpeedMin()
     speedMax = Cars.getCarSpeedMax()
-    temp = (speed - speedMin) / speedMax * (planTimeMax - planTimeMin)
+    temp = int((speedMax - speed) / speedMax * 500)
     if temp > planTime:
         planTime = temp
     return planTime
@@ -43,7 +43,6 @@ def planTimeWeighted(car):
 
 def main():
     starttime = datetime.datetime.now()
-    # logging.info("Start!!!")
     # if len(sys.argv) != 5:
     #     # logging.info('please input args: car_path, road_path, cross_path, answerPath')
     #     exit(1)
@@ -65,9 +64,9 @@ def main():
     answer_path = '../config/answer.txt'
 
     initialData.initial(car_path, cross_path, road_path)
-    # dataCross = pd.read_csv(changeTXTpathToCSV(cross_path))
-    # dataRoad = pd.read_csv(changeTXTpathToCSV(road_path))
     # dataCar = pd.read_csv(changeTXTpathToCSV(car_path))
+    # dataCar['DrivePath'] = None
+    # dataCar['DriveDistance'] = None
     mapHelperVar = MapHelper()
     trafficMap = Map(cross_path, road_path)
     roadInstances = generateRoadInstances(road_path)
@@ -75,17 +74,23 @@ def main():
     carDict = {}
     file = open(answer_path, 'w')
     path = {}
+    distance = {}
     for carId in Cars.getCarIdList():
         carDict[carId] = Car(carId)
         fromCrossId = str(carDict[carId].getCarFrom())
         toCrossId = str(carDict[carId].getCarTo())
         if fromCrossId not in path:
+            distance[fromCrossId] = {}
             MyLogger.print("fromCrossId=", fromCrossId)
-            path.update(
-                mapHelperVar.findAllShortestPathByMyDijkstra(fromCrossId, trafficMap.crossRelation, roadInstances))
+            distaceVar, pathVar = mapHelperVar.findAllShortestPathByMyDijkstra(fromCrossId, trafficMap.crossRelation,
+                                                                               roadInstances)
+            path.update(pathVar)
+            distance[fromCrossId].update(distaceVar)
         MyLogger.print(carId)
         carDict[carId].addDrivePath(path[fromCrossId][toCrossId])
-        string = str((carId, planTimeWeighted(carDict[carId]), carDict[carId].getDrivePath()))
+        carDict[carId].setDriveDistance(distance[fromCrossId][toCrossId])
+        string = str(
+            (carId, planTimeWeighted(carDict[carId]), carDict[carId].getDrivePath()))
         string = string.replace('[', '')
         string = string.replace(']', '')
         file.write(string + '\n')

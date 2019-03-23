@@ -275,7 +275,7 @@ class MapHelper(object):
                         self.getRoadIdByTwoCrossIdsInCrossRelation(pathByCrossesIdDict[i][j][k],
                                                                    pathByCrossesIdDict[i][j][k + 1],
                                                                    crossRelation))
-        return pathByRoadIdDict
+        return distance, pathByRoadIdDict
 
     def __dijkstra_find_all_shortest_path(self, graph, src):
         """

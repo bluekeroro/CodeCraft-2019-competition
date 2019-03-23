@@ -14,6 +14,7 @@ class Car(object):
         self.__carId = carId
         self.__currentSpeed = 0  # 初始车辆的速度为零
         self.__drivePath = list()  # 车辆已经行驶及正在行驶的路径
+        self.__driveDistance = 0
         if not (carId in Cars.getCarIdList()):
             raise RuntimeError("Invalid param.")
 
@@ -89,6 +90,22 @@ class Car(object):
         :return:
         """
         return self.__drivePath
+
+    def setDriveDistance(self, distance):
+        """
+        设置当前行驶的距离，和DrivePath对应
+        :param distance: int
+        :return:
+        """
+        self.__driveDistance = distance
+
+    def getDriveDistance(self):
+        """
+        获取当前行驶的距离，和DrivePath对应
+        :param distance: int
+        :return:
+        """
+        return self.__driveDistance
 
 
 class Cars(object):

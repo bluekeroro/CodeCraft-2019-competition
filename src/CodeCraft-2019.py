@@ -64,9 +64,8 @@ def main():
     answer_path = '../config/answer.txt'
 
     initialData.initial(car_path, cross_path, road_path)
-    # dataCar = pd.read_csv(changeTXTpathToCSV(car_path))
-    # dataCar['DrivePath'] = None
-    # dataCar['DriveDistance'] = None
+    dataCar = pd.read_csv(changeTXTpathToCSV(car_path))
+    dataCar['DriveDistance'] = None
     mapHelperVar = MapHelper()
     trafficMap = Map(cross_path, road_path)
     roadInstances = generateRoadInstances(road_path)
@@ -89,11 +88,21 @@ def main():
         MyLogger.print(carId)
         carDict[carId].addDrivePath(path[fromCrossId][toCrossId])
         carDict[carId].setDriveDistance(distance[fromCrossId][toCrossId])
-        string = str(
-            (carId, planTimeWeighted(carDict[carId]), carDict[carId].getDrivePath()))
+        dataCar.loc[dataCar['id'] == carId, 'DriveDistance'] = distance[fromCrossId][toCrossId]
+        # MyLogger.print(dataCar.head(2))
+        # string = str(
+        #     (carId, planTimeWeighted(carDict[carId]), carDict[carId].getDrivePath()))
+        # string = string.replace('[', '')
+        # string = string.replace(']', '')
+        # file.write(string + '\n')
+    dataCar = dataCar.sort_values(by=['speed', 'DriveDistance'], ascending=[False, True])
+    count = 10
+    for index, row in dataCar.iterrows():
+        string = str((row['id'], count, carDict[row['id']].getDrivePath()))
         string = string.replace('[', '')
         string = string.replace(']', '')
         file.write(string + '\n')
+        count += 1
     file.close()
     endtime = datetime.datetime.now()
     MyLogger.print('运行时间:', (endtime - starttime).total_seconds())  # 运行时间:  58.1495s

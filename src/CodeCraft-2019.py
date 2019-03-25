@@ -2,6 +2,8 @@
 import sys
 import os
 
+from lib_fqy.shortestpath import getShortestPath
+
 curPath = os.path.abspath(os.path.dirname(__file__))
 rootPath = os.path.split(curPath)[0]
 sys.path.append(rootPath)
@@ -16,21 +18,6 @@ from lib.mapHelper import MapHelper
 from lib_fqy.map import Map
 from lib_fqy.road import generateRoadInstances
 
-
-# import numpy as np
-# import  ctypes
-# arr = np.zeros((3,5))
-# #arr = np.array([[1,2],[3,4]])
-# tmp = np.asarray(arr)
-# dataptr=tmp.ctypes.data_as(ctypes.c_char_p)
-# tmp = np.asarray(arr)
-# np.ndarray.ctypes.d
-
-# logging.basicConfig(level=logging.DEBUG,
-#                     filename='../logs/CodeCraft-2019.log',
-#                     format='[%(asctime)s] %(levelname)s [%(funcName)s: %(filename)s, %(lineno)d] %(message)s',
-#                     datefmt='%Y-%m-%d %H:%M:%S',
-#                     filemode='a')
 
 def planTimeWeighted(car):
     """
@@ -80,35 +67,28 @@ def main():
     # mapHelperVar.initialDirGraph(trafficMap.crossRelation, roadInstances)
     carDict = {}
     file = open(answer_path, 'w')
-    path = {}
-    distance = {}
     print("初始化时间：", (datetime.datetime.now() - starttime).total_seconds())
+    path = getShortestPath(trafficMap, roadInstances)
     for carId in Cars.getCarIdList():
-        carDict[carId] = Car(carId)
-        fromCrossId = str(carDict[carId].getCarFrom())
-        toCrossId = str(carDict[carId].getCarTo())
-        if fromCrossId not in path:
-            distance[fromCrossId] = {}
-            # MyLogger.print("fromCrossId=", fromCrossId)
-            distaceVar, pathVar = mapHelperVar.findAllShortestPathByMyDijkstra(fromCrossId, trafficMap.crossRelation,
-                                                                               roadInstances)
-            path.update(pathVar)
-            distance[fromCrossId].update(distaceVar)
-        # MyLogger.print(carId)
-        carDict[carId].addDrivePath(path[fromCrossId][toCrossId])
-        carDict[carId].setDriveDistance(distance[fromCrossId][toCrossId])
-        dataCar.loc[dataCar['id'] == carId, 'DriveDistance'] = distance[fromCrossId][toCrossId]
-        # MyLogger.print(dataCar.head(2))
-        # string = str(
-        #     (carId, planTimeWeighted(carDict[carId]), carDict[carId].getDrivePath()))
-        # string = string.replace('[', '')
-        # string = string.replace(']', '')
-        # file.write(string + '\n')
+        MyLogger.print(carId)
+        fromCrossId = str(Cars.getCarFromByCarId(carId))
+        toCrossId = str(Cars.getCarToByCarId(carId))
+        # carDict[carId] = Car(carId)
+        # fromCrossId = str(carDict[carId].getCarFrom())
+        # toCrossId = str(carDict[carId].getCarTo())
+        pathRoadIdIntList = list()
+        for i in path[fromCrossId][toCrossId]['path']:
+            pathRoadIdIntList.append(int(i.split('-')[0]))
+        # carDict[carId].addDrivePath(pathRoadIdIntList)
+        # carDict[carId].setDriveDistance(path[fromCrossId][toCrossId]['length'])
+        carDict[carId] = pathRoadIdIntList
+        dataCar.loc[dataCar['id'] == carId, 'DriveDistance'] = path[fromCrossId][toCrossId]['length']
     dataCar = dataCar.sort_values(by=['speed', 'DriveDistance'], ascending=[False, True])
     count = 10
     print("规划时间：", (datetime.datetime.now() - starttime).total_seconds())
     for index, row in dataCar.iterrows():
-        string = str((row['id'], count, carDict[row['id']].getDrivePath()))
+        # string = str((row['id'], count, carDict[row['id']].getDrivePath()))
+        string = str((row['id'], count, carDict[row['id']]))
         string = string.replace('[', '')
         string = string.replace(']', '')
         file.write(string + '\n')

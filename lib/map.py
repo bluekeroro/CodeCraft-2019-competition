@@ -4,8 +4,9 @@ import pandas as pd
 
 
 class Map(object):
-    def __init__(self, configPath):
-        self.configPath = configPath
+    def __init__(self, configCrossPath, configRoadPath):
+        self.configCrossPath = configCrossPath
+        self.configRoadPath = configRoadPath
         self.crossRelation = {} # 路口的连接关系
         self.roadRelation = {} # 道路的连接关系
 
@@ -15,8 +16,8 @@ class Map(object):
         """
         建立路口和道路的连接关系
         """
-        crossData = pd.read_csv(self.configPath + '/cross.csv')
-        roadData = pd.read_csv(self.configPath + '/road.csv')
+        crossData = pd.read_csv(self.configCrossPath)
+        roadData = pd.read_csv(self.configRoadPath)
 
         self.crossRelation = {str(i):{} for i in crossData['id']}
         for index, row in roadData.iterrows():
@@ -67,8 +68,8 @@ class Map(object):
         
 
 if __name__ == '__main__':
-    configPath = '../CodeCraft-2019/config'
-    trafficMap = Map(configPath)
-    print trafficMap.crossRelation
-    print trafficMap.roadRelation
-
+    configCrossPath = '../config/cross.csv'
+    configRoadPath = '../config/road.csv'
+    trafficMap = Map(configCrossPath, configRoadPath)
+    print(trafficMap.crossRelation)
+    print(trafficMap.roadRelation)

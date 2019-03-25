@@ -39,8 +39,8 @@ def planTimeWeighted(car):
 
 def main():
     starttime = datetime.datetime.now()
-    if len(sys.argv) == 5:
-        MyLogger.setEnable(False)
+    if len(sys.argv) == 5: # 如果运行时没有输入参数，则将路径设为默认路径
+        MyLogger.setEnable(False) # 如果输入参数了，则说明提交到了平台，需要关闭打印
         car_path = sys.argv[1]
         road_path = sys.argv[2]
         cross_path = sys.argv[3]
@@ -51,43 +51,28 @@ def main():
         cross_path = '../config/cross.txt'
         answer_path = '../config/answer.txt'
 
-    # configPath = ''
-    # for i in range(len(car_path) - 1, -1, -1):
-    #     if car_path[i] == '/':
-    #         configPath = car_path[0:i]
-    # MyLogger.print(car_path, road_path, cross_path, answer_path)
-    # MyLogger.print(configPath)
-
-    initialData.initial(car_path, cross_path, road_path)
-    dataCar = pd.read_csv(changeTXTpathToCSV(car_path))
-    dataCar['DriveDistance'] = None
-    mapHelperVar = MapHelper()
+    initialData.initial(car_path, cross_path, road_path) # 初始化，将txt转为csv
+    dataCar = pd.read_csv(changeTXTpathToCSV(car_path)) # 读取csv存为dataframe以便后续不同的策略排序
+    dataCar['DriveDistance'] = None # 策略排序需要考虑的因素
     trafficMap = Map(cross_path, road_path)
     roadInstances = generateRoadInstances(road_path)
-    # mapHelperVar.initialDirGraph(trafficMap.crossRelation, roadInstances)
     carDict = {}
-    file = open(answer_path, 'w')
+    file = open(answer_path, 'w') # 到这里耗时1s左右
     print("初始化时间：", (datetime.datetime.now() - starttime).total_seconds())
     path = getShortestPath(trafficMap, roadInstances)
-    for carId in Cars.getCarIdList():
+    for carId in Cars.getCarIdList(): # 对全部车辆的遍历，将距离写入dataCar中，对路径截断
         MyLogger.print(carId)
         fromCrossId = str(Cars.getCarFromByCarId(carId))
         toCrossId = str(Cars.getCarToByCarId(carId))
-        # carDict[carId] = Car(carId)
-        # fromCrossId = str(carDict[carId].getCarFrom())
-        # toCrossId = str(carDict[carId].getCarTo())
         pathRoadIdIntList = list()
-        for i in path[fromCrossId][toCrossId]['path']:
+        for i in path[fromCrossId][toCrossId]['path']: # 对路径截断
             pathRoadIdIntList.append(int(i.split('-')[0]))
-        # carDict[carId].addDrivePath(pathRoadIdIntList)
-        # carDict[carId].setDriveDistance(path[fromCrossId][toCrossId]['length'])
-        carDict[carId] = pathRoadIdIntList
+        carDict[carId] = pathRoadIdIntList # 将截断的路径存入字典中
         dataCar.loc[dataCar['id'] == carId, 'DriveDistance'] = path[fromCrossId][toCrossId]['length']
-    dataCar = dataCar.sort_values(by=['speed', 'DriveDistance'], ascending=[False, True])
-    count = 10
+    dataCar = dataCar.sort_values(by=['speed', 'DriveDistance'], ascending=[False, True]) # 速度从大到小排，然后行驶距离从小到大排
+    count = 10 # plantime时间，从10开始，一次累加，不适合后续大地图
     print("规划时间：", (datetime.datetime.now() - starttime).total_seconds())
-    for index, row in dataCar.iterrows():
-        # string = str((row['id'], count, carDict[row['id']].getDrivePath()))
+    for index, row in dataCar.iterrows(): # 将data写入answer中
         string = str((row['id'], count, carDict[row['id']]))
         string = string.replace('[', '')
         string = string.replace(']', '')

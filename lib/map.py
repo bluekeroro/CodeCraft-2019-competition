@@ -2,6 +2,8 @@
 
 import pandas as pd
 
+from lib.myLogger import MyLogger
+
 
 class Map(object):
     def __init__(self, configCrossPath, configRoadPath):
@@ -71,5 +73,5 @@ if __name__ == '__main__':
     configCrossPath = '../config/cross.csv'
     configRoadPath = '../config/road.csv'
     trafficMap = Map(configCrossPath, configRoadPath)
-    print(trafficMap.crossRelation)
-    print(trafficMap.roadRelation)
+    MyLogger.print(trafficMap.crossRelation)
+    MyLogger.print(trafficMap.roadRelation)

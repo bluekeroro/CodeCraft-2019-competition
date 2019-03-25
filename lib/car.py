@@ -2,6 +2,8 @@
 
 import pandas as pd
 
+from lib.myLogger import MyLogger
+
 
 class Car(object):
     def __init__(self, **data):
@@ -42,5 +44,5 @@ def generateCarInstances(configPath):
 if __name__ == '__main__':
     configPath = '../config/car.csv'
     cars = generateCarInstances(configPath)
-    print(cars['10000'].__dict__)
+    MyLogger.print(cars['10000'].__dict__)
 

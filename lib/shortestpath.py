@@ -1,7 +1,8 @@
 # -*- coding:UTF-8 -*-
 from lib.map import Map
-import lib.road
-import lib.car
+import lib.road as road
+import lib.car as car
+from lib.myLogger import MyLogger
 
 
 def getShortestPath(trafficMap, roads, cars):
@@ -60,7 +61,7 @@ if __name__ == '__main__':
         dst = cars[carId].dstCross
         p = path[src][dst]
 
-    print(p)
+    MyLogger.print(p)
 
 
 

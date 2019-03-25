@@ -2,6 +2,9 @@
 
 import pandas as pd
 
+from lib.myLogger import MyLogger
+
+
 class Road(object):
     def __init__(self, **data):
         self.id = data['id']  # 道路的id
@@ -106,6 +109,6 @@ def generateRoadInstances(configPath):
 if __name__ == '__main__':
     configPath = '../config/road.csv'
     roads = generateRoadInstances(configPath)
-    print(roads['5010-1'].__dict__)
-    print(roads['5010-2'].__dict__)
-    print(roads['5010-1'].length)
+    MyLogger.print(roads['5010-1'].__dict__)
+    MyLogger.print(roads['5010-2'].__dict__)
+    MyLogger.print(roads['5010-1'].length)

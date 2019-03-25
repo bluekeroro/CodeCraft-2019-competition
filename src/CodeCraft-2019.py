@@ -76,4 +76,4 @@ if __name__ == "__main__":
     from time import time
     t = time()
     main()
-    print('The Time Consumption:',time()-t)
+    MyLogger.print('The Time Consumption:',time()-t)

@@ -4,9 +4,6 @@
 @Time    : 2019/3/10 19:26
 @Author  : Blue Keroro
 """
-import pandas as pd
-
-
 
 def initial(carTxtPath, crossTxtPath, roadTxtPath):
     """

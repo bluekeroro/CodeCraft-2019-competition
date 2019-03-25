@@ -11,20 +11,21 @@ class Car(object):
         self.maxSpeed = data['speed'] # 最高速度
         self.planTime = data['planTime'] # 计划出发事件
 
-        self.status = 'start' # 当前状态，可选值：'start' | 'run' | 'arrival'
         self.route = [] # 路线
         self.leaveTime = None # 实际出发时间
         self.currentLocRoad = None # 当前所在的道路
         self.currentLocLane = None # 当前所在的车道
         self.currentLocPos = None # 当前所在距离
-
+        
+        self.status = None # 当前状态 可选 'start' | 'run' | 'end'
+        self.flag = None # 当前调度状态。可选： 'W' | 'T'
 
 def generateCarInstances(configPath):
     """
     生成所有车辆的实例
     """
     carSet = {}
-    carData = pd.read_csv(configPath + '/car.csv')
+    carData = pd.read_csv(configPath)
     for index, row in carData.iterrows():
         data = {
             'id': str(row['id']),
@@ -39,7 +40,7 @@ def generateCarInstances(configPath):
 
 
 if __name__ == '__main__':
-    configPath = '../CodeCraft-2019/config'
+    configPath = '../config/car.csv'
     cars = generateCarInstances(configPath)
     print(cars['10000'].__dict__)
 

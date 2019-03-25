@@ -256,7 +256,7 @@ class MapHelper(object):
         graph_dict = {}
         for i in crossRelation.keys():
             graph_dict[i] = {}
-            graph_dict[i][i] = 0
+            graph_dict[i][i] = 0 # 同一个点的距离是0
             for j in crossRelation[i].keys():
                 graph_dict[i][j] = roadInstances[crossRelation[i][j]].length
 

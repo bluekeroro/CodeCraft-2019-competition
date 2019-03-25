@@ -17,6 +17,15 @@ from lib_fqy.map import Map
 from lib_fqy.road import generateRoadInstances
 
 
+# import numpy as np
+# import  ctypes
+# arr = np.zeros((3,5))
+# #arr = np.array([[1,2],[3,4]])
+# tmp = np.asarray(arr)
+# dataptr=tmp.ctypes.data_as(ctypes.c_char_p)
+# tmp = np.asarray(arr)
+# np.ndarray.ctypes.d
+
 # logging.basicConfig(level=logging.DEBUG,
 #                     filename='../logs/CodeCraft-2019.log',
 #                     format='[%(asctime)s] %(levelname)s [%(funcName)s: %(filename)s, %(lineno)d] %(message)s',
@@ -73,18 +82,19 @@ def main():
     file = open(answer_path, 'w')
     path = {}
     distance = {}
+    print("初始化时间：", (datetime.datetime.now() - starttime).total_seconds())
     for carId in Cars.getCarIdList():
         carDict[carId] = Car(carId)
         fromCrossId = str(carDict[carId].getCarFrom())
         toCrossId = str(carDict[carId].getCarTo())
         if fromCrossId not in path:
             distance[fromCrossId] = {}
-            MyLogger.print("fromCrossId=", fromCrossId)
+            # MyLogger.print("fromCrossId=", fromCrossId)
             distaceVar, pathVar = mapHelperVar.findAllShortestPathByMyDijkstra(fromCrossId, trafficMap.crossRelation,
                                                                                roadInstances)
             path.update(pathVar)
             distance[fromCrossId].update(distaceVar)
-        MyLogger.print(carId)
+        # MyLogger.print(carId)
         carDict[carId].addDrivePath(path[fromCrossId][toCrossId])
         carDict[carId].setDriveDistance(distance[fromCrossId][toCrossId])
         dataCar.loc[dataCar['id'] == carId, 'DriveDistance'] = distance[fromCrossId][toCrossId]
@@ -96,6 +106,7 @@ def main():
         # file.write(string + '\n')
     dataCar = dataCar.sort_values(by=['speed', 'DriveDistance'], ascending=[False, True])
     count = 10
+    print("规划时间：", (datetime.datetime.now() - starttime).total_seconds())
     for index, row in dataCar.iterrows():
         string = str((row['id'], count, carDict[row['id']].getDrivePath()))
         string = string.replace('[', '')

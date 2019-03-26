@@ -5,58 +5,22 @@
 @Author  : Blue Keroro
 """
 
+
 def initial(carTxtPath, crossTxtPath, roadTxtPath):
     """
     将txt数据转为csv,以便于使用pandas读取
     :param configPath: txt数据文件路径
     :return:
     """
-    # configPath = "CodeCraft-2019/config"
-    carPath = carTxtPath
-    crossPath = crossTxtPath
-    roadPath = roadTxtPath
-    carCSVPath = changeTXTpathToCSV(carTxtPath)
-    crossCSVPath = changeTXTpathToCSV(crossTxtPath)
-    roadCSVPath = changeTXTpathToCSV(roadTxtPath)
-    try:
-        f = open(carPath, 'r')
-        f1 = open(carCSVPath, 'w')
-        for line in f.readlines():
-            line = line.replace("#", '')
-            line = line.replace("(", '')
-            line = line.replace(")", '')
-            f1.write(line)
-    finally:
-        if f:
-            f.close()
-        if f1:
-            f1.close()
-    try:
-        f = open(crossPath, 'r')
-        f1 = open(crossCSVPath, 'w')
-        for line in f.readlines():
-            line = line.replace("#", '')
-            line = line.replace("(", '')
-            line = line.replace(")", '')
-            f1.write(line)
-    finally:
-        if f:
-            f.close()
-        if f1:
-            f1.close()
-    try:
-        f = open(roadPath, 'r')
-        f1 = open(roadCSVPath, 'w')
-        for line in f.readlines():
-            line = line.replace("#", '')
-            line = line.replace("(", '')
-            line = line.replace(")", '')
-            f1.write(line)
-    finally:
-        if f:
-            f.close()
-        if f1:
-            f1.close()
+    rawPathList = [carTxtPath, crossTxtPath, roadTxtPath]
+    for path in rawPathList:
+        CSVPath = changeTXTpathToCSV(path)
+        with open(CSVPath, 'w') as f, open(path, 'r') as f1:
+            for line in f1:
+                line = line.replace("#", '')
+                line = line.replace("(", '')
+                line = line.replace(")", '')
+                f.write(line)
 
 
 def changeTXTpathToCSV(path):
@@ -73,4 +37,3 @@ if __name__ == "__main__":
     crossTxtPath = "../config/cross.txt"
     roadTxtPath = "../config/road.txt"
     initial(carTxtPath, crossTxtPath, roadTxtPath)
-

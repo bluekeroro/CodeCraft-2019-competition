@@ -52,25 +52,31 @@ def main():
 
         speed = thisCar.maxSpeed
         distance = path[src][dst]['length']
-        carList.append((thisCar.id, speed, distance))
+        planTime = thisCar.planTime
+        carList.append((thisCar.id, speed, planTime, distance))
 
-    # 先速度降序排列，后行驶距离降序排列
-    carList = sorted(carList, key=lambda x:(x[1],x[2]), reverse=True)
+    # 排序优先级： 速度降序 》 计划出发时间升序 》 行驶距离升序 
+    # 3次排序待优化为1次排序 使用cmp_to_key()
+    carList = sorted(carList, key=lambda x:(x[3]), reverse=False)
+    carList = sorted(carList, key=lambda x:(x[2]), reverse=False)
+    carList = sorted(carList, key=lambda x:(x[1]), reverse=True)
 
     # 按优先级顺序载入实际出发时间并生成输出文件
-    cnt = 10
+    cnt = 0
     file = open(answer_path, 'w')
     for term in carList:
         thisCar = cars[term[0]]
-        thisCar.leaveTime = cnt
-        cnt += 1
-        
+        thisCar.leaveTime = thisCar.planTime + int(cnt)
+        cnt += 0.04 # 可调的参数
         answer = '('+','.join([thisCar.id, str(thisCar.leaveTime), ','.join(thisCar.route)])+')'
         file.write(answer+'\n')
 
+        # MyLogger.print(thisCar.id, thisCar.leaveTime, thisCar.maxSpeed)
+        # MyLogger.print(term)
 
 if __name__ == "__main__":
     from time import time
     t = time()
     main()
     MyLogger.print('The Time Consumption:',time()-t)
+

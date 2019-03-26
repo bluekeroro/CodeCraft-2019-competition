@@ -18,10 +18,15 @@ echo $project_name
 rm -f CodeCraft_code.tar.gz
 if [ -e CodeCraft_code.tar.gz ]
 then
-	echo "didn't rm CodeCraft_code.tar.gz"
+	echo "Didn't remove CodeCraft_code.tar.gz. You may nead to close the zip!"
 	exit -1
 fi
 cd ..
+if [ -d CodeCraft-2019 ]
+then
+	echo "CodeCraft-2019 exits! You need to remove it by hand."
+	exit -1
+fi
 cp -rf $project_name CodeCraft-2019
 rm -rf CodeCraft-2019/config CodeCraft-2019/venv CodeCraft-2019/.idea CodeCraft-2019/.git
 

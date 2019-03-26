@@ -12,50 +12,7 @@ sys.path.append(rootPath)
 from lib.car import generateCarInstances
 from lib.road import generateRoadInstances
 from lib.map import Map
-from lib.shortestpath import getShortestPath
-
-
-def statistics(path, roads, cars, roadRelation):
-    num_direction = 0
-    num_forward = 0
-    num_left = 0
-    num_right = 0
-    turning_times = {i:0 for i in range(10)}
-    total_length = 0
-    
-    for carId in sorted(cars.keys()):
-        src = cars[carId].srcCross
-        dst = cars[carId].dstCross
-        num_turning = 0
-
-        # print(carId, '', end='')
-        for i in range(len(path[src][dst]['path'])-1):
-            curRoad = path[src][dst]['path'][i]
-            nextRoad = path[src][dst]['path'][i+1]
-            direction = roadRelation[curRoad][nextRoad]
-            num_direction += 1
-            if direction == 'forward':
-                num_forward += 1
-            if direction == 'left':
-                num_left += 1
-                num_turning += 1
-            if direction == 'right':
-                num_right += 1 
-                num_turning += 1
-            turning_times[num_turning] += 1          
-
-            # print(direction,'- ',end='')
-        # print(num_turning)
-
-        for roadId in path[src][dst]['path']:
-            total_length += roads[roadId].length
-
-    print("\n","ALL","Forward","Left","Right")
-    print(num_direction,num_forward,num_left,num_right)
-    print(turning_times)
-    print("Length:",total_length)
-
-
+from lib.shortestpath import getShortestPath, countTurning
 
 
 
@@ -70,4 +27,15 @@ if __name__ == '__main__':
     roadRelation = trafficMap.roadRelation
     path = getShortestPath(trafficMap, roads, cars)
 
-    statistics(path, roads, cars, roadRelation)
+
+    turning_times = {i:0 for i in range(10)}
+    for carId in cars:
+        src = cars[carId].srcCross
+        dst = cars[carId].dstCross
+        t = countTurning(path,roadRelation,src,dst)
+        turning_times[t] += 1
+        
+    print(turning_times)
+
+
+

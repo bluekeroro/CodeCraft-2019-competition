@@ -9,7 +9,7 @@ from lib import initialData
 from lib.car import generateCarInstances
 from lib.road import generateRoadInstances
 from lib.map import Map
-from lib.shortestpath import getShortestPath
+from lib.shortestpath import getShortestPath, countTurning
 from lib.myLogger import MyLogger
 
 def main():
@@ -49,14 +49,16 @@ def main():
         dst = thisCar.dstCross
 
         thisCar.route = list(map(lambda x: x[:-2], path[src][dst]['path']))
+        turning = countTurning(path,trafficMap.roadRelation,src,dst)
 
         speed = thisCar.maxSpeed
         distance = path[src][dst]['length']
         planTime = thisCar.planTime
-        carList.append((thisCar.id, speed, planTime, distance))
+        carList.append((thisCar.id, speed, planTime, turning, distance))
 
-    # 排序优先级： 速度降序 》 计划出发时间升序 》 行驶距离升序 
+    # 排序优先级： 速度降序 》 计划出发时间升序 》 转向的次数升序 》 行驶距离升序 
     # 3次排序待优化为1次排序 使用cmp_to_key()
+    carList = sorted(carList, key=lambda x:(x[4]), reverse=False)
     carList = sorted(carList, key=lambda x:(x[3]), reverse=False)
     carList = sorted(carList, key=lambda x:(x[2]), reverse=False)
     carList = sorted(carList, key=lambda x:(x[1]), reverse=True)
@@ -67,7 +69,7 @@ def main():
     for term in carList:
         thisCar = cars[term[0]]
         thisCar.leaveTime = thisCar.planTime + int(cnt)
-        cnt += 0.04 # 可调的参数 0.04
+        cnt += 0.03 # 可调的参数 0.04
         answer = '('+','.join([thisCar.id, str(thisCar.leaveTime), ','.join(thisCar.route)])+')'
         file.write(answer+'\n')
 
@@ -79,7 +81,5 @@ if __name__ == "__main__":
     t = time()
     main()
     MyLogger.print('The Time Consumption:',time()-t)
-    """
-    ss
-    """
+    
 

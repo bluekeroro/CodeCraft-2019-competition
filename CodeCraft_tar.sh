@@ -18,7 +18,7 @@ echo $project_name
 rm -f CodeCraft_code.tar.gz
 if [ -e CodeCraft_code.tar.gz ]
 then
-	echo "Didn't remove CodeCraft_code.tar.gz. You may nead to close the zip!"
+	echo "Didn't remove CodeCraft_code.tar.gz. You may need to close the zip!"
 	exit -1
 fi
 cd ..

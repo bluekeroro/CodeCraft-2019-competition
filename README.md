@@ -4,4 +4,5 @@
 3. CodeCraft_tar.sh脚本打包时不包含config目录，venv目录，.idea目录，.git目录
 4. 在执行该脚本时，请勿同时用压缩软件打开CodeCraft_code.tar.gz。否则无法更新该压缩文件。
 
-*打包命令：sh CodeCraft_tar.sh*
+*打包命令：sh CodeCraft_tar.sh*  
+*运行pip install -r requirements.txt 安装依赖*

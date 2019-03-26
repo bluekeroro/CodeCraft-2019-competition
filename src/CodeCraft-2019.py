@@ -67,7 +67,7 @@ def main():
     for term in carList:
         thisCar = cars[term[0]]
         thisCar.leaveTime = thisCar.planTime + int(cnt)
-        cnt += 0.08
+        cnt += 0.04 # 可调的参数
         answer = '('+','.join([thisCar.id, str(thisCar.leaveTime), ','.join(thisCar.route)])+')'
         file.write(answer+'\n')
 
@@ -79,3 +79,4 @@ if __name__ == "__main__":
     t = time()
     main()
     MyLogger.print('The Time Consumption:',time()-t)
+

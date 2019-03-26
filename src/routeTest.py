@@ -15,19 +15,20 @@ from lib.map import Map
 from lib.shortestpath import getShortestPath
 
 
-def statistics(path, cars, roadRelation):
+def statistics(path, roads, cars, roadRelation):
     num_direction = 0
     num_forward = 0
     num_left = 0
     num_right = 0
     turning_times = {i:0 for i in range(10)}
+    total_length = 0
     
     for carId in sorted(cars.keys()):
         src = cars[carId].srcCross
         dst = cars[carId].dstCross
         num_turning = 0
 
-        print(carId, '', end='')
+        # print(carId, '', end='')
         for i in range(len(path[src][dst]['path'])-1):
             curRoad = path[src][dst]['path'][i]
             nextRoad = path[src][dst]['path'][i+1]
@@ -43,13 +44,16 @@ def statistics(path, cars, roadRelation):
                 num_turning += 1
             turning_times[num_turning] += 1          
 
-            print(direction,'- ',end='')
-        print(num_turning)
+            # print(direction,'- ',end='')
+        # print(num_turning)
 
+        for roadId in path[src][dst]['path']:
+            total_length += roads[roadId].length
 
     print("\n","ALL","Forward","Left","Right")
     print(num_direction,num_forward,num_left,num_right)
     print(turning_times)
+    print("Length:",total_length)
 
 
 
@@ -66,4 +70,4 @@ if __name__ == '__main__':
     roadRelation = trafficMap.roadRelation
     path = getShortestPath(trafficMap, roads, cars)
 
-    statistics(path, cars, roadRelation)
+    statistics(path, roads, cars, roadRelation)

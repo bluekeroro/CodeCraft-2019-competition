@@ -94,11 +94,11 @@ def main():
     MyLogger.print(cnt)
 
     # 生成输出文件
-    file = open(answer_path, 'w')
-    for carId in cars:
-        thisCar = cars[carId]
-        answer = '(' + ','.join([thisCar.id, str(thisCar.leaveTime), ','.join(thisCar.route)]) + ')'
-        file.write(answer + '\n')
+    with open(answer_path, 'w') as file:
+        for carId in cars:
+            thisCar = cars[carId]
+            answer = '(' + ','.join([thisCar.id, str(thisCar.leaveTime), ','.join(thisCar.route)]) + ')'
+            file.write(answer + '\n')
 
 
 if __name__ == "__main__":

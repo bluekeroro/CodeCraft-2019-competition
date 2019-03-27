@@ -11,11 +11,11 @@ import matplotlib.pyplot as plt
 from lib import initialData
 from lib_plot.cross import Crosses
 from lib_plot.road import Roads
-import networkx as nx
+# import networkx as nx
 
 
 # plt = '' # linux環境下會報錯，暫不使用
-# nx = '' # release下不使用networkx
+nx = '' # release下不使用networkx
 
 
 class MapHelper(object):

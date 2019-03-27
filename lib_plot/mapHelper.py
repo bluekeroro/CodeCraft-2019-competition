@@ -20,10 +20,6 @@ nx = '' # release下不使用networkx
 
 class MapHelper(object):
     def __init__(self):
-        """
-        :param dataCross: dataFrame cross数据
-        :param dataRoad: dataFrame road数据
-        """
         self.hasAddMap = {}
         self.interval = 20
         self.font1 = {'family': 'Times New Roman',

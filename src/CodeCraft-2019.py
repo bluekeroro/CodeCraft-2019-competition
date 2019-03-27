@@ -49,37 +49,63 @@ def main():
         dst = thisCar.dstCross
 
         thisCar.route = list(map(lambda x: x[:-2], path[src][dst]['path']))
-        turning = countTurning(path,trafficMap.roadRelation,src,dst)
+        turning = countTurning(path, trafficMap.roadRelation, src, dst)
 
         speed = thisCar.maxSpeed
         distance = path[src][dst]['length']
         planTime = thisCar.planTime
         carList.append((thisCar.id, speed, planTime, turning, distance))
 
-    # 排序优先级： 速度降序 》 计划出发时间升序 》 转向的次数升序 》 行驶距离升序 
-    # 3次排序待优化为1次排序 使用cmp_to_key()
-    carList = sorted(carList, key=lambda x:(x[4]), reverse=False)
-    carList = sorted(carList, key=lambda x:(x[3]), reverse=False)
-    carList = sorted(carList, key=lambda x:(x[2]), reverse=False)
-    carList = sorted(carList, key=lambda x:(x[1]), reverse=True)
+    # 优先级排序
+    carList = sorted(carList, key=lambda x: (x[4]), reverse=False)  # 行驶距离
+    carList = sorted(carList, key=lambda x: (x[2]), reverse=False)  # 计划出发时间
+    carList = sorted(carList, key=lambda x: (x[3]), reverse=False)  # 转向次数
+    carList = sorted(carList, key=lambda x: (x[1]), reverse=True)  # 速度
 
-    # 按优先级顺序载入实际出发时间并生成输出文件
+    # 按速度分批次
+    s8carList = [term for term in carList if term[1] >= 8]
+    s6carList = [term for term in carList if 4 < term[1] <= 6]
+    s4carList = [term for term in carList if 2 < term[1] <= 4]
+    s2carList = [term for term in carList if term[1] <= 2]
+
+    # 参数矩阵
+    param = [
+        # turning 0     1     2    <=3
+        [0.02, 0.02, 0.02, 0.3],  # speed >= 8
+        [0.02, 0.02, 0.04, 0.3],  # 4 <= speed <= 6
+        [0.03, 0.04, 0.04, 0.3],  # 2 <= speed <= 4
+        [0.03, 0.04, 0.04, 0.3]  # speed <= 2
+    ]
+
     cnt = 0
-    file = open(answer_path, 'w')
-    for term in carList:
-        thisCar = cars[term[0]]
-        thisCar.leaveTime = thisCar.planTime + int(cnt)
-        cnt += 0.03 # 可调的参数 0.04
-        answer = '('+','.join([thisCar.id, str(thisCar.leaveTime), ','.join(thisCar.route)])+')'
-        file.write(answer+'\n')
+    for i, carList in enumerate([s8carList, s6carList, s4carList, s2carList]):
+        for term in carList:
+            if term[3] == 0:
+                cnt += param[i][0]
+            if term[3] == 1:
+                cnt += param[i][1]
+            if term[3] == 2:
+                cnt += param[i][2]
+            if term[3] >= 3:
+                cnt += param[i][3]
+            thisCar = cars[term[0]]
+            thisCar.leaveTime = thisCar.planTime + int(cnt)
 
-        # MyLogger.print(thisCar.id, thisCar.leaveTime, thisCar.maxSpeed)
-        # MyLogger.print(term)
+    MyLogger.print(cnt)
+
+    # 生成输出文件
+    file = open(answer_path, 'w')
+    for carId in cars:
+        thisCar = cars[carId]
+        answer = '(' + ','.join([thisCar.id, str(thisCar.leaveTime), ','.join(thisCar.route)]) + ')'
+        file.write(answer + '\n')
+
 
 if __name__ == "__main__":
     from time import time
+
     t = time()
     main()
-    MyLogger.print('The Time Consumption:',time()-t)
-    
+    MyLogger.print('The Time Consumption:', time() - t)
+
 

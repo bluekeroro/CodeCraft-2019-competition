@@ -4,6 +4,11 @@
 @Time    : 2019/3/10 19:26
 @Author  : Blue Keroro
 """
+import pandas as pd
+
+from lib_plot.car import Cars
+from lib_plot.cross import Crosses
+from lib_plot.road import Roads
 
 
 def initial(carTxtPath, crossTxtPath, roadTxtPath):
@@ -21,6 +26,9 @@ def initial(carTxtPath, crossTxtPath, roadTxtPath):
                 line = line.replace("(", '')
                 line = line.replace(")", '')
                 f.write(line)
+    Cars.initial(pd.read_csv(changeTXTpathToCSV(carTxtPath)))
+    Crosses.initial(pd.read_csv(changeTXTpathToCSV(crossTxtPath)))
+    Roads.initial(pd.read_csv(changeTXTpathToCSV(roadTxtPath)))
 
 
 def changeTXTpathToCSV(path):

@@ -22,10 +22,6 @@ class MyLogger(object):
     def setEnable(cls, enable):
         cls.enable = enable
 
-    @classmethod
-    def getEnable(cls):
-        return cls.enable
-
 
 if __name__ == "__main__":
     MyLogger.print("hhhh", "jkklll1")

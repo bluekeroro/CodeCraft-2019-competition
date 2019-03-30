@@ -26,6 +26,7 @@ def initial(carTxtPath, crossTxtPath, roadTxtPath):
                 line = line.replace("(", '')
                 line = line.replace(")", '')
                 f.write(line)
+    # 可视化的数据初始化
     Cars.initial(pd.read_csv(changeTXTpathToCSV(carTxtPath)))
     Crosses.initial(pd.read_csv(changeTXTpathToCSV(crossTxtPath)))
     Roads.initial(pd.read_csv(changeTXTpathToCSV(roadTxtPath)))

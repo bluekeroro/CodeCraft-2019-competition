@@ -38,7 +38,7 @@ def getShortestPath(trafficMap, roads, cars):
                         road1Id = crossRelation[r1src][r1dst]
                         road2Id = crossRelation[r2src][r2dst]
                         direction = roadRelation[road1Id][road2Id]
-                        penalty = 0 if direction == 'forward' else 100 # 60为对一次转向的惩罚系数
+                        penalty = 0 if direction == 'forward' else 300 # 60为对一次转向的惩罚系数
                     except:
                         penalty = 9999
 

@@ -6,3 +6,5 @@
 
 *打包命令：sh CodeCraft_tar.sh*  
 *运行pip install -r requirements.txt 安装依赖*
+
+test

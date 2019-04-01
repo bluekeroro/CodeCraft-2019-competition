@@ -1,6 +1,6 @@
 # -*- coding:UTF-8 -*-
 
-import pandas as pd
+from lib.myLogger import MyLogger
 
 
 class Car(object):
@@ -10,6 +10,8 @@ class Car(object):
         self.dstCross = data['to'] # 终点路口的id
         self.maxSpeed = data['speed'] # 最高速度
         self.planTime = data['planTime'] # 计划出发事件
+        self.isPriority = data['isPriority'] # 是否为优先车辆
+        self.isPreset = data['isPreset'] # 是否为预置车辆
 
         self.route = [] # 路线
         self.leaveTime = None # 实际出发时间
@@ -20,27 +22,29 @@ class Car(object):
         self.status = None # 当前状态 可选 'start' | 'run' | 'end'
         self.flag = None # 当前调度状态。可选： 'W' | 'T'
 
-def generateCarInstances(configPath):
-    """
-    生成所有车辆的实例
-    """
-    carSet = {}
-    carData = pd.read_csv(configPath)
-    for index, row in carData.iterrows():
-        data = {
-            'id': str(row['id']),
-            'from': str(row['from']),
-            'to': str(row['to']),
-            'speed': row['speed'],
-            'planTime': row['planTime'],
-        }
-        carSet[data['id']] = Car(**data)
 
+def generateCarInstances(configPath):
+    carSet = {}
+    with open(configPath, 'r') as f:
+        f.readline() # 跳过第一行
+        for line in f:
+            line = line.replace('(', '').replace(')', '').replace('\n', '')
+            line = line.split(', ')
+            data = {
+                'id': line[0],
+                'from': line[1],
+                'to': line[2],
+                'speed': int(line[3]),
+                'planTime': int(line[4]),
+                'isPriority': int(line[5]),
+                'isPreset': int(line[6]),
+            }
+            carSet[data['id']] = Car(**data)
     return carSet
 
 
-if __name__ == '__main__':
-    configPath = '../config/car.csv'
-    cars = generateCarInstances(configPath)
-    print(cars['10000'].__dict__)
 
+if __name__ == '__main__':
+    configPath = '../config/car.txt'
+    cars = generateCarInstances(configPath)
+    MyLogger.print(cars['37819'].__dict__)

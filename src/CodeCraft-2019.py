@@ -35,7 +35,7 @@ def main():
 
     # 载入预置车辆的路径和实际出发时间
     with open(presetAnswer_path, 'r') as f:
-        f.readline() # 跳过第一行
+        f.readline()  # 跳过第一行
         for line in f:
             line = line.replace('(', '').replace(')', '').replace(' ', '').replace('\n', '')
             line = line.split(',')
@@ -56,8 +56,6 @@ def main():
     # 计算全源最短路径
     path = getShortestPath(trafficMap, roads, cars)
 
-
-
     # 载入非预置车辆的路径和实际出发时间
     carList = []
     for carId in cars:
@@ -70,22 +68,18 @@ def main():
             thisCar.route = path[src][dst]['path']
             thisCar.leaveTime = thisCar.planTime
 
-
-
-
     # 生成输出文件
     file = open(answer_path, 'w')
     for carId in cars:
         thisCar = cars[carId]
-        thisCar.route = list(map(lambda x: x[:-2], thisCar.route)) # roadId转换
+        thisCar.route = list(map(lambda x: x[:-2], thisCar.route))  # roadId转换
         answer = '(' + ','.join([thisCar.id, str(thisCar.leaveTime), ','.join(thisCar.route)]) + ')\n'
         file.write(answer)
 
 
 if __name__ == "__main__":
     from time import time
+
     t = time()
     main()
     MyLogger.print('The Time Consumption:', time() - t)
-
-

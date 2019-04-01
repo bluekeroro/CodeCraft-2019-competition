@@ -4,11 +4,6 @@
 @Time    : 2019/3/12 19:14
 @Author  : Blue Keroro
 """
-import pandas as pd
-from lib import initialData
-from lib.myLogger import MyLogger
-
-
 class Car(object):
     def __init__(self, carId):
         self.__carId = carId
@@ -194,6 +189,8 @@ class Cars(object):
 
 
 if __name__ == "__main__":
+    from lib import initialData
+    from lib.myLogger import MyLogger
     configPath = "../config"
     initialData.initial(configPath + "/car.txt", configPath + "/cross.txt", configPath + "/road.txt")
     # 会报错，因为声明了静态类，不可直接运行该文件，需要在其他地方调用才可以

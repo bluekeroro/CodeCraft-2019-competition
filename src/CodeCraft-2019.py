@@ -15,20 +15,23 @@ from lib.myLogger import MyLogger
 
 
 def main():
-    if len(sys.argv) == 5:
+    if len(sys.argv) == 6:
         MyLogger.setEnable(False)
         car_path = sys.argv[1]
         road_path = sys.argv[2]
         cross_path = sys.argv[3]
-        answer_path = sys.argv[4]
+        presetAnswer_path = sys.argv[4]
+        answer_path = sys.argv[5]
     else:
         car_path = '../config/car.txt'
         road_path = '../config/road.txt'
         cross_path = '../config/cross.txt'
         answer_path = '../config/answer.txt'
+        presetAnswer_path = '../config/presetAnswer.txt'
+
 
     # 初始化数据
-    initialData.initial(car_path, cross_path, road_path)
+    initialData.initial(car_path, cross_path, road_path, presetAnswer_path)
 
     # 路径txt转csv
     car_path = initialData.changeTXTpathToCSV(car_path)

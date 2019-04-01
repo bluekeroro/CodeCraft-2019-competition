@@ -4,11 +4,6 @@
 @Time    : 2019/3/12 21:15
 @Author  : Blue Keroro
 """
-import pandas as pd
-from lib import initialData
-from lib.myLogger import MyLogger
-
-
 class Cross(object):
     def __init__(self, crossId):
         self.__crossId = crossId
@@ -108,6 +103,8 @@ class Crosses(object):
 
 
 if __name__ == '__main__':
+    from lib import initialData
+    from lib.myLogger import MyLogger
     # 会报错，因为声明了静态类，不可直接运行该文件，需要在其他地方调用才可以
     configPath = "../CodeCraft-2019/config_10"
     initialData.initial(configPath + "/car.txt", configPath + "/cross.txt", configPath + "/road.txt")

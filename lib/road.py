@@ -1,6 +1,8 @@
 # -*- coding:UTF-8 -*-
 
-import pandas as pd
+
+from lib.myLogger import MyLogger
+
 
 class Road(object):
     def __init__(self, **data):
@@ -74,38 +76,40 @@ class Road(object):
                     pass
 
 
+
 def generateRoadInstances(configPath):
     roadSet = {}
-    roadData = pd.read_csv(configPath)
-    for index, row in roadData.iterrows():
-        data = {
-            'id': str(row['id']) + '-1',
-            'length': row['length'],
-            'speed': row['speed'],
-            'channel': row['channel'],
-            'from': str(row['from']),
-            'to': str(row['to']),
-        }
-        roadSet[data['id']] = Road(**data)
-
-        # 如果是双向的加多一条反向的road
-        if row['isDuplex']:
+    with open(configPath, 'r') as f:
+        f.readline() # 跳过第一行
+        for line in f:
+            line = line.replace('(', '').replace(')', '').replace('\n', '')
+            line = line.split(', ')
             data = {
-                'id': str(row['id']) + '-2',
-                'length': row['length'],
-                'speed': row['speed'],
-                'channel': row['channel'],
-                'from': str(row['to']),
-                'to': str(row['from']),
+                'id': line[0] + '-1',
+                'length': int(line[1]),
+                'speed': int(line[2]),
+                'channel': int(line[3]),
+                'from': line[4],
+                'to': line[5],
             }
             roadSet[data['id']] = Road(**data)
-
+            # 如果是双向的加多一条反向的road
+            if int(line[6]):
+                data = {
+                    'id': line[0] + '-2',
+                    'length': int(line[1]),
+                    'speed': int(line[2]),
+                    'channel': int(line[3]),
+                    'from': line[5],
+                    'to': line[4],
+                }
+                roadSet[data['id']] = Road(**data)
     return roadSet
 
 
+
 if __name__ == '__main__':
-    configPath = '../config/road.csv'
+    configPath = '../config/road.txt'
     roads = generateRoadInstances(configPath)
-    print(roads['5010-1'].__dict__)
-    print(roads['5010-2'].__dict__)
-    print(roads['5010-1'].length)
+    MyLogger.print(roads['5000-1'].__dict__)
+    MyLogger.print(len(roads))

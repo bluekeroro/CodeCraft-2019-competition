@@ -38,6 +38,6 @@ if __name__ == '__main__':
     # print(turning_times)
 
     
-
+    print(roadRelation['6997-1'])
 
 

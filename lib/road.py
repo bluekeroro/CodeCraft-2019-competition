@@ -13,67 +13,57 @@ class Road(object):
         self.srcCross = data['from']  # 道路连接的起点路口
         self.dstCross = data['to']  # 道路连接的终点路口
 
-        self.currentLane = [[] for i in range(0, self.laneNum)]  # 各车道当前存在的车辆及其位置 {1:[['10000', 5], ['10001', 3]]}
-        self.willEnter = []
+        self.currentLane = [[] for i in range(0, self.laneNum)]  # 各车道当前存在的车辆及其位置
+        self.willEnter = [] # 当前周期将进入的车辆 (实例，转向，车道，位置)
 
     def pushCar(self, car, s1):
         """
         当前道路载入车辆
         car： 车的实例
         s1： 在上一条路走过的距离
-        return: 是否载入成功
+        return: 是否载入成功, 是否需要等待下一个循环
         """
         speed = min(car.maxSpeed, self.limitSpeed)
         pos = speed - s1
 
         # 速度不够进入这条路
         if pos <= 0:
-            return False
+            return False, False
 
         # 遍历所有车道寻找可以载入的位置
         for n in range(0, self.laneNum):
             thisLane = self.currentLane[n]
-            stopPos = thisLane[-1][1] if thisLane else self.length+1
-            if stopPos - 1 != 0:
+            lastCar = thisLane[-1][0] if thisLane else None
+            stopPos = lastCar.currentLocPos if lastCar else self.length+1
+            # 受阻位不在第一位
+            if stopPos != 1:
+                # 最后一辆车存在且受阻且为等待状态
+                if lastCar and pos>=stopPos and lastCar.flag == 'W':
+                    # 受阻前车为等待状态,得等待下一个循环
+                    return False, True
                 self.currentLane[n].append([car, min(pos, stopPos-1)])
                 car.currentLocRoad = self.id
                 car.currentLocLane = n
                 car.currentLocPos = min(pos, stopPos-1)
-                return True
+                car.status = 'run'
+                car.flag = 'T'
+                return True, False
 
         # 所有车道入口处都被堵住
-        return False
+        return False, False
 
-    # def popCar(self, car):
-    #     """
-    #     当前道路载出车辆
-    #     car: 车的实例
-    #     """
-    #     # 遍历所有车道查找该车的位置
-    #     for n in range(0, self.laneNum):
-    #         carIds = [c[0] for c in self.currentLane[n]]
-    #         try:
-    #             index = carIds.index(car.id)
-    #         except:
-    #             pass
-    #         else:
-    #             break
-
-    #     # 注意，这里不改car类实例的当前位置，因为是先push再pop
-    #     self.currentLane[n].pop(index)
-
-    def runCars(self):
+    def popCar(self, carId):
         """
-        运行当前道路的车辆
+        当前道路载出车辆
+        car: 车的实例
         """
-        for n in range(thisRoad.laneNum):
-            for index, c in enumerate(thisRoad.currentLane[n]):
-                thisCar = c[0]
-                pos = c[1]
-                speed = min(self.limitSpeed, thisCar.maxSpeed)
-                # 前方无车
-                if index == 0:
-                    pass
+        # 遍历所有车道查找该车的位置
+        for n in range(0, self.laneNum):
+            if self.currentLane[n] and self.currentLane[n][0][0].id == carId:
+                break
+        else:
+            raise Exception("Pop Car Fail")
+        self.currentLane[n].pop(0)
 
 
 
@@ -113,3 +103,5 @@ if __name__ == '__main__':
     roads = generateRoadInstances(configPath)
     MyLogger.print(roads['5000-1'].__dict__)
     MyLogger.print(len(roads))
+
+

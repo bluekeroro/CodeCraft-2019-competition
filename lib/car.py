@@ -22,6 +22,19 @@ class Car(object):
         self.status = None  # 当前状态 可选 'start' | 'run' | 'end'
         self.flag = None  # 当前调度状态。可选： 'W' | 'T'
 
+    def getNextRoadId(self):
+        """
+        获取当前路线中的下一条道路的id
+        return： 道路id
+        """
+        try:
+            currIndex = self.route.index(self.currentLocRoad)
+        except:
+            raise Exception("Current Location Is Not in the Route")
+        # 如果当前道路是最后一条则返回None
+        nextRoadId = self.route[currIndex+1] if currIndex < len(self.route)-1 else None
+        return nextRoadId
+
 
 def generateCarInstances(configPath):
     carSet = {}

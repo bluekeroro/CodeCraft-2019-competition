@@ -210,17 +210,22 @@ class Scheduler(object):
                             pass
                         else:
                             nextCrossId = thisRoad.dstCross # 取路的终点的路口id
-                            # 如果即将到终点则无需再加入路径了
-                            if nextCrossId == thisCar.dstCross:
-                                pass
-                            else:
+                            # 如果即将到达终点则无需再加入路径
+                            if nextCrossId != thisCar.dstCross:
                                 goodRoadId = self.pickGoodRoad(nextCrossId, thisCar.dstCross)
+                                i = thisCar.route.index(thisRoad.id)
+                                thisCar.route = thisCar.route[:i+1]
                                 thisCar.route.append(goodRoadId)
 
                         nextRoadId = thisCar.getNextRoadId()
                         if nextRoadId:
                             thisCar.flag = 'W'
-                            direction = self.trafficMap.roadRelation[thisCar.currentLocRoad][nextRoadId]
+                            try:
+                                direction = self.trafficMap.roadRelation[thisRoad.id][nextRoadId]
+                            except:
+                                print(thisRoad.id,nextRoadId)
+                                raise
+
                             if direction == 'forward':
                                 direnum = 0
                             elif direction == 'left':
@@ -401,11 +406,11 @@ if __name__ == '__main__':
 
 
     cars = dict((carId,cars[carId]) for carId in cars if cars[carId].leaveTime <= 1)
-    # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPreset == 1)
+    # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPreset == 0)
     # cars = dict((carId,cars[carId]) for i,carId in enumerate(cars) if i<1)
 
     scheduler = Scheduler(trafficMap, roads, cars)
-    scheduler.run(1)
+    scheduler.run(150)
 
     print('The Time Consumption:', time() - t)
     print('Car Num:',len(cars))

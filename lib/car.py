@@ -2,7 +2,6 @@
 
 from lib.myLogger import MyLogger
 
-
 class Car(object):
     def __init__(self, **data):
         self.id = data['id']  # 车的id
@@ -36,9 +35,9 @@ class Car(object):
         return nextRoadId
 
 
-def generateCarInstances(configPath):
+def generateCarInstances(car_path):
     carSet = {}
-    with open(configPath, 'r') as f:
+    with open(car_path, 'r') as f:
         f.readline()  # 跳过第一行
         for line in f:
             line = line.replace('(', '').replace(')', '').replace('\n', '')
@@ -57,6 +56,6 @@ def generateCarInstances(configPath):
 
 
 if __name__ == '__main__':
-    configPath = '../config/car.txt'
-    cars = generateCarInstances(configPath)
+    car_path = '../config/car.txt'
+    cars = generateCarInstances(car_path)
     MyLogger.print(cars['37819'].__dict__)

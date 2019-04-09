@@ -16,6 +16,25 @@ class Road(object):
         self.currentLane = [[] for i in range(0, self.laneNum)]  # 各车道当前存在的车辆及其位置
         self.willEnter = [] # 当前周期将进入的车辆 (实例，转向，车道，位置)
 
+    def calcRoadCondition(self):
+        """
+        检查当前道路可进入的车道的路况
+        """
+        condition = {}
+        for n in range(0, self.laneNum):
+            thisLane = self.currentLane[n]
+            lastCar = thisLane[-1][0] if thisLane else None
+            stopPos = lastCar.currentLocPos if lastCar else self.length+1
+            # 受阻位不在第一位,代表将选择这条车道
+            if stopPos != 1:
+                condition['length'] = self.length
+                condition['limitSpeed'] = self.limitSpeed
+                condition['lane'] = self.currentLane[n]
+                return condition
+        # 所有车道的受阻位都在第一位即已经没有空位可进入
+        return {}
+                
+
     def pushCar(self, car, s1):
         """
         当前道路载入车辆

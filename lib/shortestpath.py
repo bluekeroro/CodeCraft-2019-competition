@@ -5,7 +5,7 @@ import lib.car as car
 from lib.myLogger import MyLogger
 
 
-def getShortestPath(trafficMap, roads, cars):
+def getShortestPath(trafficMap, roads):
     """
     计算全源最短路径
     """
@@ -22,28 +22,13 @@ def getShortestPath(trafficMap, roads, cars):
             length = roads[roadId].length if roadId else 9999
             path[src][dst] = {'length': length, 'path': [src, dst]} if src != dst else {'length': 0, 'path': [src, dst]}
 
-    for n in range(2):  # 得遍历两次保证惩罚因子的完整扩散
-        # Floyd-Warshall算法
-        for k in crossList:
-            for i in crossList:
-                for j in crossList:
-                    # 引入转向惩罚因子
-                    r1src = path[i][k]['path'][-2]
-                    r1dst = path[i][k]['path'][-1]
-                    r2src = path[k][j]['path'][0]
-                    r2dst = path[k][j]['path'][1]
-                    # 异常： 终点源点相同的路、 不存在的路
-                    try:
-                        road1Id = crossRelation[r1src][r1dst]
-                        road2Id = crossRelation[r2src][r2dst]
-                        direction = roadRelation[road1Id][road2Id]
-                        penalty = 0 if direction == 'forward' else 300 # 60为对一次转向的惩罚系数
-                    except:
-                        penalty = 9999
-
-                    if path[i][j]['length'] > path[i][k]['length'] + path[k][j]['length'] + penalty:
-                        path[i][j]['length'] = path[i][k]['length'] + path[k][j]['length'] + penalty
-                        path[i][j]['path'] = path[i][k]['path'] + path[k][j]['path'][1:]
+    # Floyd-Warshall算法
+    for k in crossList:
+        for i in crossList:
+            for j in crossList:
+                if path[i][j]['length'] > path[i][k]['length'] + path[k][j]['length']:
+                    path[i][j]['length'] = path[i][k]['length'] + path[k][j]['length']
+                    path[i][j]['path'] = path[i][k]['path'] + path[k][j]['path'][1:]
 
     # path字段由crossId转roadId
     for src in path:
@@ -58,36 +43,6 @@ def getShortestPath(trafficMap, roads, cars):
                     shortestPath.append(roadId)
             path[src][dst]['path'] = shortestPath
 
-    return path
-
-
-def getShortestPathLength(trafficMap, roads):
-    """
-    基于之前的弗洛伊德算法略加修改即可，不需要特别提供什么参数
-    如果两点没有想通的路径，则shorestPathLengthDict[crossId1][crossId2]>999999
-    :param trafficMap:
-    :param roads:
-    :return: 返回shorestPathLengthDict
-    """
-    crossRelation = trafficMap.crossRelation
-    crossList = sorted(crossRelation.keys(), key=lambda x: int(x))  # 去除列表里的元素的排列的随机性
-    path = {}
-
-    # 初始化
-    for src in crossRelation:
-        path[src] = {}
-        for dst in crossRelation:
-            roadId = crossRelation[src][dst] if dst in crossRelation[src] else None
-            length = roads[roadId].length if roadId else 999999
-            path[src][dst] = {'length': length} if src != dst else {'length': 0}
-
-    # Floyd-Warshall算法
-    for k in crossList:
-        for i in crossList:
-            for j in crossList:
-                if path[i][j]['length'] > path[i][k]['length'] + path[k][j]['length']:
-                    path[i][j]['length'] = path[i][k]['length'] + path[k][j]['length']
-                    # path[i][j]['path'] = path[i][k]['path'] + path[k][j]['path'][1:]
     return path
 
 
@@ -120,16 +75,9 @@ if __name__ == '__main__':
     roads = road.generateRoadInstances(configRoadPath)
     cars = car.generateCarInstances(configCarPath)
 
-    path = getShortestPath(trafficMap, roads, cars)
+    path = getShortestPath(trafficMap, roads)
     for carId in cars:
         src = cars[carId].srcCross
         dst = cars[carId].dstCross
         p = path[src][dst]
         MyLogger.print("getShortestPath：", carId, p)
-
-    path1 = getShortestPathLength(trafficMap, roads)
-    for carId in cars:
-        src = cars[carId].srcCross
-        dst = cars[carId].dstCross
-        p = path1[src][dst]
-        MyLogger.print("getShortestPathLength：", carId, p)

@@ -1,7 +1,8 @@
 # -*- coding:UTF-8 -*-
+import math
 
 
-def selectRoad(condition, shortestpath, crossRelation, currCrossId, srcCrossId):
+def selectRoad(condition, shortestpath, crossRelation, currCrossId, dstCrossId):
     """
     计算拥堵程度，选择最好的路
     condition: 待选路的路况，形如：
@@ -41,18 +42,65 @@ def selectRoad(condition, shortestpath, crossRelation, currCrossId, srcCrossId):
 
     currCrossId: 当前路口id
 
-    srcCrossId: 终点路口id
+    dstCrossId: 终点路口id
     
     return： 返回挑选的路的id
 
     """
 
     """以下回退到单纯Floyd-Warshall最短路径算法"""
-    roadId = shortestpath[currCrossId][srcCrossId]['path'][0]
-    for nextCrossId in crossRelation[currCrossId]:
-        if crossRelation[currCrossId][nextCrossId] == roadId:
-            break
+    # roadId = shortestpath[currCrossId][srcCrossId]['path'][0]
+    # for nextCrossId in crossRelation[currCrossId]:
+    #     if crossRelation[currCrossId][nextCrossId] == roadId:
+    #         break
+    # else:
+    #     raise Exception(roadId + ':Mismatch!')
+    ret_list = []
+    for roadId in condition:
+        for nextCrossId in crossRelation[currCrossId]:
+            if crossRelation[currCrossId][nextCrossId] == roadId \
+                and shortestpath[nextCrossId][dstCrossId]['length'] \
+                    < shortestpath[currCrossId][dstCrossId]['length']:
+                time = useTimeInChannel(condition[roadId])
+                ret_list.append([roadId, time])
+
+    if len(ret_list) == 1:
+        print('只有一条路径可以计算拥堵程度')
+    elif len(ret_list) == 0:
+        raise RuntimeError("没有路径可以计算拥堵程度")
     else:
-        raise Exception(roadId + ':Mismatch!')
-    return roadId
-    
+        print('多条路径可以计算拥堵程度')
+    ret_list = sorted(ret_list, key=lambda x: x[1])
+    return ret_list[0]
+
+
+def useTimeInChannel(channel):
+    """
+    计算carObj通过该channel的时间，主要在selectRoad中调用
+    :param channel:形如
+    {
+            'limitSpeed': 15,
+            'length': 30,
+            'lane': [[<CarObject>, 12], [<CarObject>, 10], [<CarObject>, 4]]
+        }
+    :return: (int) time
+    """
+    lane = sorted(channel['lane'], key=lambda x: x[1], reverse=True)
+    preTime = 0
+    for (car, loc) in lane:
+        currSpeed = car.maxSpeed if car.maxSpeed < channel['limitSpeed'] else channel['limitSpeed']
+        time = math.ceil(float(channel['length'] + 1 - loc) / float(currSpeed))
+        if preTime <= time:
+            preTime = time
+
+    return int(preTime)
+
+
+if __name__ == '__main__':
+    # channel = {
+    #     'limitSpeed': 15,
+    #     'length': 30,
+    #     'lane': [[1, 12], [2, 8], [3, 2]]
+    # }
+    # useTimeInChannel(channel)
+    pass

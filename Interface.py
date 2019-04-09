@@ -52,14 +52,3 @@ def useTimeInChannel(channel,carObj):
     :return: (int) time
     """
     pass
-
-
-def getShortestPathLength(trafficMap, roads):
-    """
-    基于之前的弗洛伊德算法略加修改即可，不需要特别提供什么参数
-    如果两点没有想通的路径，则shorestPathLengthDict[crossId1][crossId2]=None
-    :param trafficMap:
-    :param roads:
-    :return: 返回shorestPathLengthDict
-    """
-    pass

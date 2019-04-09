@@ -8,6 +8,7 @@ from lib.myLogger import MyLogger
 def getShortestPath(trafficMap, roads):
     """
     计算全源最短路径
+    如果两点没有连通的路径，则shorestPathLengthDict[crossId1][crossId2]>=9999
     """
     crossRelation = trafficMap.crossRelation
     roadRelation = trafficMap.roadRelation

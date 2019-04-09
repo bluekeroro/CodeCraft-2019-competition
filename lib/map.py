@@ -85,3 +85,4 @@ if __name__ == '__main__':
     trafficMap = Map(configCrossPath, configRoadPath)
     MyLogger.print(trafficMap.crossRelation)
     MyLogger.print(trafficMap.roadRelation)
+    MyLogger.print(trafficMap.roadData)

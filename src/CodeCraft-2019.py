@@ -30,7 +30,7 @@ def main():
 
     # 获得交通图和车辆及道路的所有实例
     trafficMap = Map(cross_path, road_path)
-    cars = generateCarInstances(car_path)
+    cars = generateCarInstances(car_path, presetAnswer_path)
     roads = generateRoadInstances(road_path)
 
     # 载入预置车辆的路径和实际出发时间

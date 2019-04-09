@@ -19,7 +19,8 @@ class Scheduler(object):
         self.cars = cars
 
         self.clock = 0 # 调度时钟
-        self.startQueue = Queue() # 处于起点的车辆队列
+        self.startNormalQueue = Queue() # 处于起点的普通车辆队列
+        self.startPriorityQueue = Queue() # 处于起点的优先车辆队列
         self.endQueue = Queue() # 处于终点的车辆队列
         self.roadSchedulOrder = [] # 道路的调度顺序
 
@@ -67,7 +68,10 @@ class Scheduler(object):
 
         for carId in sorted(self.cars.keys(), key=lambda x:int(x)):
             self.cars[carId].status = 'start'
-            self.startQueue.put(carId)
+            if cars[carId].isPriority:
+                self.startPriorityQueue.put(carId)
+            else:
+                self.startNormalQueue.put(carId)
 
         for crossId in sorted(self.trafficMap.crossRelation.keys(), key=lambda x:int(x)):
             for roadId in sorted(self.trafficMap.crossRelation[crossId].values(), key=lambda x:int(x[:-2])):
@@ -88,10 +92,10 @@ class Scheduler(object):
 
     def __startCars(self):
         """
-        调度起点车辆
+        调度起点普通车辆
         """
-        for i in range(self.startQueue.qsize()):
-            carId = self.startQueue.get()
+        for i in range(self.startNormalQueue.qsize()):
+            carId = self.startNormalQueue.get()
             thisCar = self.cars[carId]
             # 时钟已过出发时间
             if self.clock >= thisCar.leaveTime:
@@ -103,16 +107,40 @@ class Scheduler(object):
                     pass
                 # 因为没位置而进入道路失败
                 else:
-                    self.startQueue.put(carId)
+                    self.startNormalQueue.put(carId)
             # 时钟尚未过出发时间
             else:
-                self.startQueue.put(carId)
+                self.startNormalQueue.put(carId)
 
-    def __runCarsInRoad(self, thisRoad):
+    def __startPriority(self):
         """
-        运行每条车道上的车辆
+        调度起点优先车辆
         """
-        for n in range(thisRoad.laneNum):
+        for i in range(self.startPriorityQueue.qsize()):
+            carId = self.startPriorityQueue.get()
+            thisCar = self.cars[carId]
+            # 时钟已过出发时间
+            if self.clock >= thisCar.leaveTime:
+                roadId = self.cars[carId].route[0]
+                thisRoad = self.roads[roadId]
+                hasPush, isWait = thisRoad.pushCar(thisCar, 0)
+                # 进入道路成功
+                if hasPush:
+                    pass
+                # 因为没位置而进入道路失败
+                else:
+                    self.startPriorityQueue.put(carId)
+            # 时钟尚未过出发时间
+            else:
+                self.startPriorityQueue.put(carId)
+
+    def __runCarsInLane(self, thisRoad, n):
+        """
+        运行车道上的车辆
+        """
+        # 如果循环过程中车道pop过则重新来一遍
+        hasPop = True
+        while hasPop:
             for index, c in enumerate(thisRoad.currentLane[n]):
                 thisCar = c[0]
 
@@ -153,7 +181,8 @@ class Scheduler(object):
                                 direnum = 1
                             elif direction == 'right':
                                 direnum = 2
-                            self.roads[nextRoadId].willEnter.append({
+
+                            hasPush = self.roads[nextRoadId].pushCarInwillEnter({
                                 'car': thisCar,
                                 's1': thisRoad.length-pos,
                                 'preRoadId': thisCar.currentLocRoad,
@@ -162,6 +191,7 @@ class Scheduler(object):
                                 'pos': thisCar.currentLocPos,
                                 'laneNum': thisCar.currentLocLane,
                                 'isPriority':thisCar.isPriority})
+
                         # 前方无路即已到达终点
                         else:
                             thisRoad.popCar(thisCar.id)
@@ -169,37 +199,45 @@ class Scheduler(object):
                             thisCar.status = 'end'
                             thisCar.currentLocPos = thisRoad.length
                             self.endflag -= 1
+                            break # 跳出本次循环并将重新循环，因为popCar以后循环次序变了
 
                 # 检查调度完以后该车的调度状态
                 if thisCar.flag == 'W':
                     self.existWaitCar = True
 
+            # 没有pop过则不再重新循环
+            else:
+                hasPop = False        
+
+
     def __runCarsInEntrance(self, thisRoad):
         """
         运行道路入口处车辆
         """
-        # 道路入口处待入车辆优先级排序
-        thisRoad.willEnter = sorted(thisRoad.willEnter, key=lambda x: (x['laneNum']), reverse=False) # 车道编号
-        thisRoad.willEnter = sorted(thisRoad.willEnter, key=lambda x: (x['pos']), reverse=True) # 相对位置
-        thisRoad.willEnter = sorted(thisRoad.willEnter, key=lambda x: (x['direnum']), reverse=False) # 转向
-        # thisRoad.willEnter = sorted(thisRoad.willEnter, key=lambda x: (x['isPriority']), reverse=True) # 优先级
-        firstDire = thisRoad.willEnter[0]['direnum'] if thisRoad.willEnter else None
-        # 只遍历第一优先级转向道路的车辆
-        for item in list(filter(lambda x: x['direnum']==firstDire, thisRoad.willEnter)):
+        while thisRoad.willEnter:
+            # 道路入口处待入车辆优先级排序
+            thisRoad.willEnter = sorted(thisRoad.willEnter, key=lambda x: (x['laneNum']), reverse=False) # 车道编号
+            thisRoad.willEnter = sorted(thisRoad.willEnter, key=lambda x: (x['pos']), reverse=True) # 相对位置
+            thisRoad.willEnter = sorted(thisRoad.willEnter, key=lambda x: (x['direnum']), reverse=False) # 转向
+            thisRoad.willEnter = sorted(thisRoad.willEnter, key=lambda x: (x['isPriority']), reverse=True) # 是否优先
+            
+            # 取优先级最高的车
+            item = thisRoad.willEnter.pop(0)
             thisCar = item['car']
             s1 = item['s1']
             preRoadId = item['preRoadId']
             preLane = item['preLane']
             preRoad = self.roads[preRoadId]
+
             hasPush, isWait = thisRoad.pushCar(thisCar, s1)
 
             # 进入道路成功
             if hasPush:
                 self.cars[thisCar.id].flag = 'T'
-                self.roads[preRoadId].popCar(thisCar.id)
-                """
-                # 前道路的前车道的车再进行一次调度 #
-                """
+                preRoad.popCar(thisCar.id)
+                # 前道路的前车道的车再进行一次调度
+                self.__runCarsInLane(preRoad, preLane)
+
             # 进入道路失败
             else:
                 # 因受阻车为等待状态而进入失败
@@ -210,8 +248,6 @@ class Scheduler(object):
                     preRoad.currentLane[preLane][0][1] = preRoad.length
                     thisCar.currentLocPos = preRoad.length
                     thisCar.flag = 'T'
-        # 重置该路的入口
-        thisRoad.willEnter = []
 
     def __runCars(self):
         """
@@ -230,7 +266,11 @@ class Scheduler(object):
             # 第一步：在各自道路内运行车辆
             for roadId in self.roadSchedulOrder:
                 thisRoad = self.roads[roadId]
-                self.__runCarsInRoad(thisRoad)
+                for n in range(thisRoad.laneNum):
+                    self.__runCarsInLane(thisRoad, n)
+
+            # 优先车辆在此发车
+            self.__startPriority()
 
             # 第二步：尝试将各自道路的入口处的车置入车道
             for roadId in self.roadSchedulOrder:
@@ -244,22 +284,10 @@ class Scheduler(object):
         """
         self.__initSchedule()
 
-        preloop = [0, 0]
         while self.endflag > 0:
             self.__initPeriod()
 
-            loop = self.__runCars()
-            print('loop:',loop)
-
-            # 一个很混的判死锁方法
-            if preloop[0] == loop:
-                preloop[1] += 1
-            else:
-                preloop[0] = loop
-                preloop[1] = 0
-            if preloop[1] >= 20:
-                raise Exception('Deadlock,loop:'+str(preloop[0]))
-
+            self.__runCars()
 
             self.__startCars()
 
@@ -300,10 +328,12 @@ if __name__ == '__main__':
 
     __loadPathTime(trafficMap, roads, cars)
 
-    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].leaveTime <= 1)
-    cars = dict((carId,cars[carId]) for i,carId in enumerate(cars) if i<1000)
+    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].leaveTime <= 8)
+    # cars = dict((carId,cars[carId]) for i,carId in enumerate(cars) if i<1000)
 
     scheduler = Scheduler(trafficMap, roads, cars)
-    scheduler.run(500)
+    scheduler.run(1500)
 
     print('The Time Consumption:', time() - t)
+    print('Car Num:',len(cars))
+

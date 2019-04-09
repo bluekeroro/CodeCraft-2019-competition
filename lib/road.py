@@ -62,9 +62,20 @@ class Road(object):
             if self.currentLane[n] and self.currentLane[n][0][0].id == carId:
                 break
         else:
-            raise Exception("Pop Car Fail")
+            raise Exception("Pop Car Fail:"+carId)
         self.currentLane[n].pop(0)
 
+    def pushCarInwillEnter(self, item):
+        """
+        当前道路载入车辆到willEnter
+        """
+        for carItem in self.willEnter:
+            if carItem['car'].id == item['car'].id:
+                break
+        else:
+            self.willEnter.append(item)
+            return True
+        return False
 
 
 def generateRoadInstances(configPath):

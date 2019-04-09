@@ -1,6 +1,8 @@
 # -*- coding:UTF-8 -*-
 import math
 
+from lib.myLogger import MyLogger
+
 
 def selectRoad(condition, shortestpath, crossRelation, currCrossId, dstCrossId):
     """
@@ -55,23 +57,29 @@ def selectRoad(condition, shortestpath, crossRelation, currCrossId, dstCrossId):
     #         break
     # else:
     #     raise Exception(roadId + ':Mismatch!')
+    MyLogger.print('selectRoad condition', condition)
     ret_list = []
     for roadId in condition:
         for nextCrossId in crossRelation[currCrossId]:
             if crossRelation[currCrossId][nextCrossId] == roadId \
-                and shortestpath[nextCrossId][dstCrossId]['length'] \
-                    < shortestpath[currCrossId][dstCrossId]['length']:
+                    and shortestpath[nextCrossId][dstCrossId]['length'] \
+                    < shortestpath[currCrossId][dstCrossId]['length'] \
+                    and len(condition[roadId]) > 0:
+                MyLogger.print("计算", roadId, "拥挤程度")
                 time = useTimeInChannel(condition[roadId])
                 ret_list.append([roadId, time])
 
     if len(ret_list) == 1:
-        print('只有一条路径可以计算拥堵程度')
+        MyLogger.print('只有一条路径可以计算拥堵程度')
     elif len(ret_list) == 0:
-        raise RuntimeError("没有路径可以计算拥堵程度")
+        MyLogger.print('没有路径可以计算拥堵程度')
+        # raise RuntimeError("没有路径可以计算拥堵程度")
+        return shortestpath[currCrossId][dstCrossId]['path'][0]
     else:
-        print('多条路径可以计算拥堵程度')
+        MyLogger.print('多条路径可以计算拥堵程度')
     ret_list = sorted(ret_list, key=lambda x: x[1])
-    return ret_list[0]
+    MyLogger.print('selectRoad返回:', ret_list[0][0])
+    return ret_list[0][0]
 
 
 def useTimeInChannel(channel):
@@ -85,6 +93,8 @@ def useTimeInChannel(channel):
         }
     :return: (int) time
     """
+    if len(channel['lane']) == 0:
+        return 0
     lane = sorted(channel['lane'], key=lambda x: x[1], reverse=True)
     preTime = 0
     for (car, loc) in lane:

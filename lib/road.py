@@ -81,6 +81,10 @@ class Road(object):
             if self.currentLane[n] and self.currentLane[n][0][0].id == carId:
                 break
         else:
+            # for n in range(0, self.laneNum):
+            #     for x in self.currentLane[n]:
+            #         print(x[0].id,end=',')
+            #     print('')
             raise Exception("Pop Car Fail:"+carId)
         self.currentLane[n].pop(0)
 

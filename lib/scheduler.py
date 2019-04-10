@@ -30,7 +30,7 @@ class Scheduler(object):
         self.endflag = len(cars) # 剩余的未完成车辆
         self.existWaitCar = True # 调度循环标志位：是否存在等待调度车辆
 
-    def pickGoodRoad(self, currCrossId, srcCrossId):
+    def pickGoodRoad(self, currCrossId, dstCrossId, srcRoad='fangqy'):
         """
         在路口处选择最好的路
         """
@@ -39,11 +39,12 @@ class Scheduler(object):
         crossRelation = self.trafficMap.crossRelation
         for nextCrossId in crossRelation[currCrossId]:
             roadId = crossRelation[currCrossId][nextCrossId]
-            thisRoad = self.roads[roadId]
-            condition[roadId] = thisRoad.calcRoadCondition()
+            if srcRoad[:-2] != roadId[:-2]:
+                thisRoad = self.roads[roadId]
+                condition[roadId] = thisRoad.calcRoadCondition()
 
         # 计算最好的路
-        goodRoadId = pathAlgorithm.selectRoad(condition, self.shortestpath, crossRelation, currCrossId, srcCrossId)
+        goodRoadId = pathAlgorithm.selectRoad(condition, self.shortestpath, crossRelation, currCrossId, dstCrossId)
         return goodRoadId
         
 
@@ -124,7 +125,8 @@ class Scheduler(object):
                     pass
                 else:
                     goodRoadId = self.pickGoodRoad(thisCar.srcCross, thisCar.dstCross)
-                    thisCar.route.append(goodRoadId)
+                    if thisCar.route == []:
+                        thisCar.route.append(goodRoadId)
 
                 roadId = self.cars[carId].route[0]
                 thisRoad = self.roads[roadId]
@@ -153,7 +155,8 @@ class Scheduler(object):
                     pass
                 else:
                     goodRoadId = self.pickGoodRoad(thisCar.srcCross, thisCar.dstCross)
-                    thisCar.route.append(goodRoadId)
+                    if thisCar.route == []:
+                        thisCar.route.append(goodRoadId)
 
                 roadId = self.cars[carId].route[0]
                 thisRoad = self.roads[roadId]
@@ -212,10 +215,10 @@ class Scheduler(object):
                             nextCrossId = thisRoad.dstCross # 取路的终点的路口id
                             # 如果即将到达终点则无需再加入路径
                             if nextCrossId != thisCar.dstCross:
-                                goodRoadId = self.pickGoodRoad(nextCrossId, thisCar.dstCross)
+                                goodRoadId = self.pickGoodRoad(nextCrossId, thisCar.dstCross, thisRoad.id)
                                 i = thisCar.route.index(thisRoad.id)
-                                thisCar.route = thisCar.route[:i+1]
-                                thisCar.route.append(goodRoadId)
+                                if thisCar.route[-1] == thisRoad.id:
+                                    thisCar.route.append(goodRoadId)
 
                         nextRoadId = thisCar.getNextRoadId()
                         if nextRoadId:
@@ -224,6 +227,8 @@ class Scheduler(object):
                                 direction = self.trafficMap.roadRelation[thisRoad.id][nextRoadId]
                             except:
                                 print(thisRoad.id,nextRoadId)
+                                print(goodRoadId)
+                                print(thisCar.__dict__)
                                 raise
 
                             if direction == 'forward':
@@ -405,12 +410,12 @@ if __name__ == '__main__':
     __loadPresetAnswer(presetAnswer_path, trafficMap, cars)
 
 
-    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].leaveTime <= 1)
-    # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPreset == 0)
-    # cars = dict((carId,cars[carId]) for i,carId in enumerate(cars) if i<1)
+    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].leaveTime <= 1) # 筛选出发时间
+    # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPreset == 1) # 筛选是否预置
+    # cars = dict((carId,cars[carId]) for i,carId in enumerate(cars) if i<1000) # 筛选车的数量
 
     scheduler = Scheduler(trafficMap, roads, cars)
-    scheduler.run(150)
+    scheduler.run(1500)
 
     print('The Time Consumption:', time() - t)
     print('Car Num:',len(cars))

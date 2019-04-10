@@ -1,16 +1,12 @@
 # -*- coding:UTF-8 -*-
-import sys
-import os
-curPath = os.path.abspath(os.path.dirname(__file__))
-rootPath = os.path.split(curPath)[0]
-sys.path.append(rootPath)
 
-from map import Map
-import road
-import car
-from shortestpath import getShortestPath
+from lib.car import generateCarInstances
+from lib.road import generateRoadInstances
+from lib.map import Map
+from lib.shortestpath import getShortestPath
+from lib.myLogger import MyLogger
 from queue import Queue
-import pathAlgorithm
+import lib.pathAlgorithm
 
 
 class Scheduler(object):
@@ -30,6 +26,12 @@ class Scheduler(object):
         self.endflag = len(cars) # 剩余的未完成车辆
         self.existWaitCar = True # 调度循环标志位：是否存在等待调度车辆
 
+    def setInitClock(self, initClock):
+        """
+        设置初始时钟
+        """
+        self.clock = initClock
+
     def pickGoodRoad(self, currCrossId, dstCrossId, srcRoad='fangqy'):
         """
         在路口处选择最好的路
@@ -44,7 +46,7 @@ class Scheduler(object):
                 condition[roadId] = thisRoad.calcRoadCondition()
 
         # 计算最好的路
-        goodRoadId = pathAlgorithm.selectRoad(condition, self.shortestpath, crossRelation, currCrossId, dstCrossId)
+        goodRoadId = lib.pathAlgorithm.selectRoad(condition, self.shortestpath, crossRelation, currCrossId, dstCrossId)
         return goodRoadId
         
 
@@ -85,11 +87,9 @@ class Scheduler(object):
         """
         调度初始化
         """
-        self.clock = 0
-
         for carId in sorted(self.cars.keys(), key=lambda x:int(x)):
             self.cars[carId].status = 'start'
-            if cars[carId].isPriority:
+            if self.cars[carId].isPriority:
                 self.startPriorityQueue.put(carId)
             else:
                 self.startNormalQueue.put(carId)
@@ -223,13 +223,7 @@ class Scheduler(object):
                         nextRoadId = thisCar.getNextRoadId()
                         if nextRoadId:
                             thisCar.flag = 'W'
-                            try:
-                                direction = self.trafficMap.roadRelation[thisRoad.id][nextRoadId]
-                            except:
-                                print(thisRoad.id,nextRoadId)
-                                print(goodRoadId)
-                                print(thisCar.__dict__)
-                                raise
+                            direction = self.trafficMap.roadRelation[thisRoad.id][nextRoadId]
 
                             if direction == 'forward':
                                 direnum = 0
@@ -334,7 +328,7 @@ class Scheduler(object):
                 self.__runCarsInEntrance(thisRoad)
         return loop
         
-    def run(self, clock=0):
+    def run(self, clock=9999999):
         """
         运行调度器
         """
@@ -343,18 +337,18 @@ class Scheduler(object):
         while self.endflag > 0:
             self.__initPeriod()
 
-            self.__runCars()
+            loop = self.__runCars()
 
             self.__startCars()
 
-            print(self.clock)
-            if self.clock >= clock:
-                # self.showAllCarsInfo()
-                self.showSomeRoadsInfo()
-                # self.showAllRoadsInfo()
-                input()
+            # print(self.clock,'Loop:', loop)
+            # if self.clock >= clock:
+            #     # self.showAllCarsInfo()
+            #     self.showSomeRoadsInfo()
+            #     # self.showAllRoadsInfo()
+            #     input()
 
-        print('Scheduling Clock:', self.clock)
+        return self.clock
 
 
 def __loadPathTime(trafficMap, roads):
@@ -403,20 +397,22 @@ if __name__ == '__main__':
     presetAnswer_path = '../config/presetAnswer.txt'
 
     trafficMap = Map(configCrossPath, configRoadPath)
-    roads = road.generateRoadInstances(configRoadPath)
-    cars = car.generateCarInstances(configCarPath)
+    roads = generateRoadInstances(configRoadPath)
+    cars = generateCarInstances(configCarPath)
 
     __loadPathTime(trafficMap, roads)
     __loadPresetAnswer(presetAnswer_path, trafficMap, cars)
 
 
-    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].leaveTime <= 1) # 筛选出发时间
+    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].leaveTime <= 10) # 筛选出发时间
+    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].maxSpeed >= 10) # 筛选出发时间
     # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPreset == 1) # 筛选是否预置
     # cars = dict((carId,cars[carId]) for i,carId in enumerate(cars) if i<1000) # 筛选车的数量
 
     scheduler = Scheduler(trafficMap, roads, cars)
-    scheduler.run(1500)
+    totalClock = scheduler.run(2000)
 
+    print('Scheduling Clock:', totalClock)
     print('The Time Consumption:', time() - t)
     print('Car Num:',len(cars))
 

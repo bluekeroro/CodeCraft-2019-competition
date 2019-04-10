@@ -9,8 +9,75 @@ sys.path.append(rootPath)
 from lib.car import generateCarInstances
 from lib.road import generateRoadInstances
 from lib.map import Map
-from lib.shortestpath import getShortestPath, countTurning
+from lib.shortestpath import getShortestPath
 from lib.myLogger import MyLogger
+from lib.scheduler import Scheduler
+
+
+def __groupAllCars(cars):
+    """
+    对非预置车辆进行分组
+    """
+    # 过滤预置车辆
+    carList = list(filter(lambda x:(x[1].isPreset == 0), cars.items()))
+    # 按速度排序
+    carList = sorted(carList, key=lambda x:(x[1].maxSpeed), reverse=True)
+
+    # 分组
+    groupSize = 1000
+    groups = [carList[i:i+groupSize] for i in range(0,len(carList),groupSize)]
+    groups = [dict(group) for group in groups]
+
+    return groups
+
+
+
+        
+def loadPresetAnswer(presetAnswer_path, trafficMap, cars):
+    """
+    载入预置车辆的路径和实际出发时间
+    """
+    with open(presetAnswer_path, 'r') as f:
+        f.readline()  # 跳过第一行
+        for line in f:
+            line = line.replace('(', '').replace(')', '').replace(' ', '').replace('\n', '')
+            line = line.split(',')
+            carId = line[0]
+            leaveTime = int(line[1])
+            route = line[2:]
+            thisCar = cars[carId]
+            thisCar.route = []
+            crossId = thisCar.srcCross
+            for r in route:
+                thisCross = trafficMap.crossRelation[crossId].items()
+                for next_crossId, roadId in thisCross:
+                    if r == roadId[:-2]:
+                        break
+                thisCar.route.append(roadId)
+                crossId = next_crossId
+            thisCar.leaveTime = leaveTime
+
+
+def loadUnPresetAnswer(trafficMap, roads, cars):
+    """
+    载入非预置车辆的路径和实际出发时间
+    """
+    # path = getShortestPath(trafficMap, roads)
+
+    startClock = 1000 
+    groups = __groupAllCars(cars)
+    for carGroup in groups:
+        # 设置出发时间
+        for carId in carGroup:
+            thisCar = cars[carId]
+            thisCar.leaveTime = startClock
+
+        scheduler = Scheduler(trafficMap, roads, carGroup)
+        scheduler.setInitClock(startClock)
+        startClock = scheduler.run()
+        
+        MyLogger.print('clock:', startClock)
+
 
 
 def main():
@@ -30,48 +97,22 @@ def main():
 
     # 获得交通图和车辆及道路的所有实例
     trafficMap = Map(cross_path, road_path)
-    cars = generateCarInstances(car_path, presetAnswer_path)
+    cars = generateCarInstances(car_path)
     roads = generateRoadInstances(road_path)
 
     # 载入预置车辆的路径和实际出发时间
-    with open(presetAnswer_path, 'r') as f:
-        f.readline()  # 跳过第一行
-        for line in f:
-            line = line.replace('(', '').replace(')', '').replace(' ', '').replace('\n', '')
-            line = line.split(',')
-            carId = line[0]
-            leaveTime = int(line[1])
-            route = line[2:]
-            thisCar = cars[carId]
-            crossId = thisCar.srcCross
-            for r in route:
-                thisCross = trafficMap.crossRelation[crossId].items()
-                for next_crossId, roadId in thisCross:
-                    if r == roadId[:-2]:
-                        break
-                thisCar.route.append(roadId)
-                crossId = next_crossId
-            thisCar.leaveTime = leaveTime
-
-    # 计算全源最短路径
-    path = getShortestPath(trafficMap, roads, cars)
+    loadPresetAnswer(presetAnswer_path, trafficMap, cars)
 
     # 载入非预置车辆的路径和实际出发时间
-    carList = []
-    for carId in cars:
-        thisCar = cars[carId]
-        if thisCar.isPreset:
-            pass
-        else:
-            src = thisCar.srcCross
-            dst = thisCar.dstCross
-            thisCar.route = path[src][dst]['path']
-            thisCar.leaveTime = thisCar.planTime
+    loadUnPresetAnswer(trafficMap, roads, cars)
 
     # 生成输出文件
     file = open(answer_path, 'w')
     for carId in cars:
         thisCar = cars[carId]
+        # 跳过预置车辆
+        if thisCar.isPreset:
+            continue
         thisCar.route = list(map(lambda x: x[:-2], thisCar.route))  # roadId转换
         answer = '(' + ','.join([thisCar.id, str(thisCar.leaveTime), ','.join(thisCar.route)]) + ')\n'
         file.write(answer)

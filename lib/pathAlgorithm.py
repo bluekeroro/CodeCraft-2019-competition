@@ -50,22 +50,14 @@ def selectRoad(condition, shortestpath, crossRelation, currCrossId, dstCrossId):
 
     """
 
-    """以下回退到单纯Floyd-Warshall最短路径算法"""
+    # """以下回退到单纯Floyd-Warshall最短路径算法"""
     # roadId = shortestpath[currCrossId][dstCrossId]['path'][0]
     # for nextCrossId in crossRelation[currCrossId]:
     #     if crossRelation[currCrossId][nextCrossId] == roadId:
     #         break
     # else:
     #     raise Exception(roadId + ':Mismatch!')
-
-    # ret_list = []
-    # for roadId in condition:
-    #     time = useTimeInChannel(condition[roadId]) if condition[roadId] else 9999
-    #     ret_list.append([roadId, time])
-
-    # ret_list = sorted(ret_list, key=lambda x: x[1])
-    # goodRoadId = ret_list[0][0] if ret_list[0][1] != 9999 else shortestpath[currCrossId][dstCrossId]['path'][0]
-    # return goodRoadId
+    # return roadId
 
     # MyLogger.print('selectRoad condition', condition)
     ret_list = []
@@ -77,19 +69,29 @@ def selectRoad(condition, shortestpath, crossRelation, currCrossId, dstCrossId):
                     and len(condition[roadId]) > 0:
                 # MyLogger.print("计算", roadId, "拥挤程度")
                 time = useTimeInChannel(condition[roadId])
-                ret_list.append([roadId, time])
+                ret_list.append(
+                    [roadId, time, shortestpath[nextCrossId][dstCrossId]['length']])
 
     if len(ret_list) == 1:
         # MyLogger.print('只有一条路径可以计算拥堵程度')
         pass
     elif len(ret_list) == 0:
         # MyLogger.print('没有路径可以计算拥堵程度')
-        # raise RuntimeError("没有路径可以计算拥堵程度")
-        return shortestpath[currCrossId][dstCrossId]['path'][0]
+        ret_roadId = shortestpath[currCrossId][dstCrossId]['path'][0]
+        if ret_roadId not in condition:
+            ret_roadId = list(condition.keys())[0]
+            for roadId in condition:  # 为了保证没有绕远路  可注释该循环以减少程序运行时间
+                for nextCrossId in crossRelation[currCrossId]:
+                    if crossRelation[currCrossId][nextCrossId] == roadId \
+                            and shortestpath[nextCrossId][dstCrossId]['length'] \
+                            < shortestpath[currCrossId][dstCrossId]['length']:
+                        return roadId
+        return ret_roadId
     else:
         # MyLogger.print('多条路径可以计算拥堵程度')
         pass
-    ret_list = sorted(ret_list, key=lambda x: x[1])
+    # ret_list = sorted(ret_list, key=lambda x: x[2])
+    ret_list = sorted(ret_list, key=lambda x: 0.4*x[1]+0.6*x[2])
     # MyLogger.print('selectRoad返回:', ret_list[0][0])
     return ret_list[0][0]
 
@@ -116,7 +118,6 @@ def useTimeInChannel(channel):
     return preTime
 
 
-
 # def selectRoad(condition, shortestpath, crossRelation, currCrossId, dstCrossId):
 #     """以下回退到单纯Floyd-Warshall最短路径算法"""
 #     roadId = shortestpath[currCrossId][dstCrossId]['path'][0]
@@ -125,13 +126,5 @@ def useTimeInChannel(channel):
 #     return roadId
 
 
-
-
 if __name__ == '__main__':
-    # channel = {
-    #     'limitSpeed': 15,
-    #     'length': 30,
-    #     'lane': [[1, 12], [2, 8], [3, 2]]
-    # }
-    # useTimeInChannel(channel)
     pass

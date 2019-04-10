@@ -54,10 +54,10 @@ class Scheduler(object):
         for carId in sorted(self.cars.keys(), key=lambda x:int(x)):
             thisCar = self.cars[carId]
             if thisCar.status == 'start':
-                print(carId, '  [',thisCar.currentLocRoad,'   ',thisCar.currentLocLane,'    ', thisCar.currentLocPos,']   ',thisCar.status)
+                MyLogger.print(carId, '  [',thisCar.currentLocRoad,'   ',thisCar.currentLocLane,'    ', thisCar.currentLocPos,']   ',thisCar.status)
             else:
                 thisRoad = self.roads[thisCar.currentLocRoad]
-                print(carId, '  [',thisCar.currentLocRoad,'   ', str(thisCar.currentLocLane)+'/'+str(thisRoad.laneNum),'    ', 
+                MyLogger.print(carId, '  [',thisCar.currentLocRoad,'   ', str(thisCar.currentLocLane)+'/'+str(thisRoad.laneNum),'    ',
                     str(thisCar.currentLocPos)+'/'+str(thisRoad.length),']   ', str(thisCar.maxSpeed)+'/'+str(thisRoad.limitSpeed),
                     '     ', thisCar.status)
 
@@ -65,8 +65,8 @@ class Scheduler(object):
         for roadId in sorted(self.roads.keys(), key=lambda x:int(x[:-2])):
             thisRoad = self.roads[roadId]
             for n in range(thisRoad.laneNum):
-                print(roadId, [(c[0].id,c[1]) for c in thisRoad.currentLane[n]])
-            print('')
+                MyLogger.print(roadId, [(c[0].id,c[1]) for c in thisRoad.currentLane[n]])
+            MyLogger.print('')
 
     def showSomeRoadsInfo(self):
         for roadId in sorted(self.roads.keys(), key=lambda x:int(x[:-2])):
@@ -74,12 +74,12 @@ class Scheduler(object):
             for n in range(thisRoad.laneNum):
                 if not thisRoad.currentLane[n]:
                     break
-                print(roadId,n, [(c[0].id,c[1]) for c in thisRoad.currentLane[n]])
+                MyLogger.print(roadId,n, [(c[0].id,c[1]) for c in thisRoad.currentLane[n]])
 
     def trackCarInfo(self, carId):
         thisCar = self.cars[carId]
         thisRoad = self.roads[thisCar.currentLocRoad]
-        print(carId, '  [',thisCar.currentLocRoad,'   ', str(thisCar.currentLocLane)+'/'+str(thisRoad.laneNum),'    ', 
+        MyLogger.print(carId, '  [',thisCar.currentLocRoad,'   ', str(thisCar.currentLocLane)+'/'+str(thisRoad.laneNum),'    ',
                     str(thisCar.currentLocPos)+'/'+str(thisRoad.length),']   ', str(thisCar.maxSpeed)+'/'+str(thisRoad.limitSpeed),
                     '     ', thisCar.status)
 
@@ -408,11 +408,12 @@ if __name__ == '__main__':
     cars = dict((carId,cars[carId]) for carId in cars if cars[carId].maxSpeed >= 10) # 筛选出发时间
     # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPreset == 1) # 筛选是否预置
     # cars = dict((carId,cars[carId]) for i,carId in enumerate(cars) if i<1000) # 筛选车的数量
+    # cars = dict((carId, cars[carId]) for i, carId in enumerate(cars) if i < 20000)  # 筛选车的数量
 
     scheduler = Scheduler(trafficMap, roads, cars)
     totalClock = scheduler.run(2000)
 
-    print('Scheduling Clock:', totalClock)
-    print('The Time Consumption:', time() - t)
-    print('Car Num:',len(cars))
+    MyLogger.print('Scheduling Clock:', totalClock)
+    MyLogger.print('The Time Consumption:', time() - t)
+    MyLogger.print('Car Num:',len(cars))
 

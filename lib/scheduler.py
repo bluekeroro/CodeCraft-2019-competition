@@ -249,6 +249,7 @@ class Scheduler(object):
                             thisCar.status = 'end'
                             thisCar.currentLocPos = thisRoad.length
                             self.endflag -= 1
+                            MyLogger.print("剩余的未完成车辆：",self.endflag,'调度时间：',self.clock)
                             break # 跳出本次循环并将重新循环，因为popCar以后循环次序变了
 
                 # 检查调度完以后该车的调度状态

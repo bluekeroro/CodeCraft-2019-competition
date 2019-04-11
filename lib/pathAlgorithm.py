@@ -68,9 +68,9 @@ def selectRoad(condition, shortestpath, crossRelation, currCrossId, dstCrossId):
                     < shortestpath[currCrossId][dstCrossId]['length'] \
                     and len(condition[roadId]) > 0:
                 # MyLogger.print("计算", roadId, "拥挤程度")
-                time = useTimeInChannel(condition[roadId])
+                time, speed = useTimeInChannel(condition[roadId])
                 ret_list.append(
-                    [roadId, time, shortestpath[nextCrossId][dstCrossId]['length']])
+                    [roadId, time, shortestpath[nextCrossId][dstCrossId]['length'], speed])
 
     if len(ret_list) == 1:
         # MyLogger.print('只有一条路径可以计算拥堵程度')
@@ -91,7 +91,8 @@ def selectRoad(condition, shortestpath, crossRelation, currCrossId, dstCrossId):
         # MyLogger.print('多条路径可以计算拥堵程度')
         pass
     # ret_list = sorted(ret_list, key=lambda x: x[2])
-    ret_list = sorted(ret_list, key=lambda x: 0.4*x[1]+0.6*x[2])
+    # ret_list = sorted(ret_list, key=lambda x: 0.4 * x[1] + 0.6 * x[2])
+    ret_list = sorted(ret_list, key=lambda x: 0.301 * x[1] * x[3] + x[2])
     # MyLogger.print('selectRoad返回:', ret_list[0][0])
     return ret_list[0][0]
 
@@ -108,14 +109,23 @@ def useTimeInChannel(channel):
     :return: (int) time
     """
     if channel['lane'] == []:
-        return 0
+        return 0, 0
+    firstCar = channel['lane'][0][0]
+    punish = 0
+    if firstCar.flag == 'W':  # 第一辆车等待时 应该有惩罚
+        punish = 0  # 效果不明显  暂不使用
+        # MyLogger.print("第一辆车等待时 应该有惩罚")
     preTime = 0
+    speed = 9999
     for (car, loc) in channel['lane']:
         currSpeed = car.maxSpeed if car.maxSpeed < channel['limitSpeed'] else channel['limitSpeed']
         time = (channel['length'] + 1 - loc) / currSpeed + 1
+        if speed >= currSpeed:
+            speed = currSpeed
         if preTime <= time:
             preTime = time
-    return preTime
+    # MyLogger.print(preTime)
+    return preTime * (1 + punish), speed
 
 
 # def selectRoad(condition, shortestpath, crossRelation, currCrossId, dstCrossId):

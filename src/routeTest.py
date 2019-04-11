@@ -18,6 +18,7 @@ from lib.shortestpath import getShortestPath
 from lib.myLogger import MyLogger
 from lib.scheduler import Scheduler
 
+
 def __loadPathTime(trafficMap, roads):
     """
     载入所有车辆的最短路径(测试用)
@@ -28,7 +29,8 @@ def __loadPathTime(trafficMap, roads):
         srcCross = thisCar.srcCross
         dstCross = thisCar.dstCross
         # thisCar.route = path[srcCross][dstCross]['path']
-        thisCar.leaveTime = thisCar.planTime 
+        thisCar.leaveTime = thisCar.planTime
+
 
 def __loadPresetAnswer(presetAnswer_path, trafficMap, cars):
     """
@@ -53,6 +55,7 @@ def __loadPresetAnswer(presetAnswer_path, trafficMap, cars):
                 thisCar.route.append(roadId)
                 crossId = next_crossId
             thisCar.leaveTime = leaveTime
+            thisCar.isPreset = 1 # 为了测试方便
 
 
 if __name__ == '__main__':
@@ -71,10 +74,9 @@ if __name__ == '__main__':
     __loadPathTime(trafficMap, roads)
     __loadPresetAnswer(presetAnswer_path, trafficMap, cars)
 
-
-    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].leaveTime <= 5) # 筛选出发时间
+    # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].leaveTime <= 5) # 筛选出发时间
     # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].maxSpeed >= 8) # 筛选最大速度
-    # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPreset == 1) # 筛选是否预置
+    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPreset == 1) # 筛选是否预置
     # cars = dict((carId,cars[carId]) for i,carId in enumerate(cars) if i<1000) # 筛选车的数量
 
     scheduler = Scheduler(trafficMap, roads, cars)
@@ -83,6 +85,4 @@ if __name__ == '__main__':
 
     print('Scheduling Clock:', totalClock)
     print('The Time Consumption:', time() - t)
-    print('Car Num:',len(cars))
-
-
+    print('Car Num:', len(cars))

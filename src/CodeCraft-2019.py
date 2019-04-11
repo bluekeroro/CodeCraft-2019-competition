@@ -19,20 +19,18 @@ def __groupAllCars(cars):
     对非预置车辆进行分组
     """
     # 过滤预置车辆
-    carList = list(filter(lambda x:(x[1].isPreset == 0), cars.items()))
+    carList = list(filter(lambda x: (x[1].isPreset == 0), cars.items()))
     # 按速度排序
-    carList = sorted(carList, key=lambda x:(x[1].maxSpeed), reverse=True)
+    carList = sorted(carList, key=lambda x: (x[1].maxSpeed), reverse=True)
 
     # 分组
     groupSize = 1000
-    groups = [carList[i:i+groupSize] for i in range(0,len(carList),groupSize)]
+    groups = [carList[i:i + groupSize] for i in range(0, len(carList), groupSize)]
     groups = [dict(group) for group in groups]
 
     return groups
 
 
-
-        
 def loadPresetAnswer(presetAnswer_path, trafficMap, cars):
     """
     载入预置车辆的路径和实际出发时间
@@ -56,28 +54,26 @@ def loadPresetAnswer(presetAnswer_path, trafficMap, cars):
                 thisCar.route.append(roadId)
                 crossId = next_crossId
             thisCar.leaveTime = leaveTime
+            thisCar.isPreset = 1  # 方便测试
 
 
-def loadUnPresetAnswer(trafficMap, roads, cars):
+def loadUnPresetAnswer(trafficMap, roads, cars, startClock):
     """
     载入非预置车辆的路径和实际出发时间
     """
     # path = getShortestPath(trafficMap, roads)
 
-    startClock = 1000 
+    intervel = 1000
     groups = __groupAllCars(cars)
+    MyLogger.print("非预置车辆分组组数：", len(groups))
     for carGroup in groups:
         # 设置出发时间
         for carId in carGroup:
             thisCar = cars[carId]
             thisCar.leaveTime = startClock
+        startClock += intervel
 
-        scheduler = Scheduler(trafficMap, roads, carGroup)
-        scheduler.setInitClock(startClock)
-        startClock = scheduler.run()
-        
-        MyLogger.print('clock:', startClock)
-
+    # MyLogger.print('clock:', startClock)
 
 
 def main():
@@ -104,7 +100,19 @@ def main():
     loadPresetAnswer(presetAnswer_path, trafficMap, cars)
 
     # 载入非预置车辆的路径和实际出发时间
-    loadUnPresetAnswer(trafficMap, roads, cars)
+    loadUnPresetAnswer(trafficMap, roads, cars, 1000)
+
+    presetCar = dict((carId, cars[carId]) for carId in cars if cars[carId].isPreset == 1)  # 筛选是否预置
+    unPresetCar = dict((carId, cars[carId]) for carId in cars if cars[carId].isPreset == 0)
+    MyLogger.print("预置车辆的数量：", len(presetCar))
+    MyLogger.print("非预置车辆的数量：", len(unPresetCar))
+    MyLogger.print("总车辆的数量：", len(cars))
+    # scheduler = Scheduler(trafficMap, roads, presetCar)
+    scheduler = Scheduler(trafficMap, roads, unPresetCar)
+    # scheduler = Scheduler(trafficMap, roads, carDict)
+    scheduler.setInitClock(1000)
+    endclock = scheduler.run()
+    MyLogger.print("调度时间:", endclock)
 
     # 生成输出文件
     file = open(answer_path, 'w')

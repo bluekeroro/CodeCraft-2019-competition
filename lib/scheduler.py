@@ -141,7 +141,6 @@ class Scheduler(object):
                 # 进入道路成功
                 if hasPush:
                     self.startNormalList.pop(i)
-                    i -= 1
                 # 因为没位置而进入道路失败
                 else:
                     i += 1
@@ -174,7 +173,6 @@ class Scheduler(object):
                 # 进入道路成功
                 if hasPush:
                     self.startPriorityList.pop(i)
-                    i -= 1
                 # 因为没位置而进入道路失败
                 else:
                     i += 1

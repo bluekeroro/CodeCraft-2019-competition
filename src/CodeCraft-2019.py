@@ -108,9 +108,9 @@ def main():
     MyLogger.print("非预置车辆的数量：", len(unPresetCar))
     MyLogger.print("总车辆的数量：", len(cars))
     # scheduler = Scheduler(trafficMap, roads, presetCar)
-    scheduler = Scheduler(trafficMap, roads, unPresetCar)
-    # scheduler = Scheduler(trafficMap, roads, carDict)
-    scheduler.setInitClock(1000)
+    # scheduler = Scheduler(trafficMap, roads, unPresetCar)
+    scheduler = Scheduler(trafficMap, roads, cars)
+    scheduler.setInitClock(0)
     endclock = scheduler.run()
     MyLogger.print("调度时间:", endclock)
 

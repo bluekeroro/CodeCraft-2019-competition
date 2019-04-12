@@ -358,6 +358,9 @@ class Scheduler(object):
 
             self.__startCars()
 
+            if self.clock >= clock:
+                MyLogger,print("调度超时  可能死锁")
+                break
             # print(self.clock,'Loop:', loop)
             # if self.clock >= clock:
             #     # self.showAllCarsInfo()

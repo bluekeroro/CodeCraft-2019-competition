@@ -4,6 +4,62 @@ import lib.road as road
 import lib.car as car
 from lib.myLogger import MyLogger
 
+def getShortestPathConsiderTurning(trafficMap, roads):
+    """
+    计算全源最短路径
+    """
+    crossRelation = trafficMap.crossRelation
+    roadRelation = trafficMap.roadRelation
+    crossList = crossRelation.keys()
+    # crossList = sorted(crossRelation.keys(), key=lambda x:int(x)) # 去除列表里的元素的排列的随机性
+    path = {}
+
+    # 初始化
+    for src in crossRelation:
+        path[src] = {}
+        for dst in crossRelation:
+            roadId = crossRelation[src][dst] if dst in crossRelation[src] else None
+            length = roads[roadId].length if roadId else 9999
+            path[src][dst] = {'length':length, 'path':[src,dst]} if src != dst else {'length':0, 'path':[src,dst]}
+
+    for n in range(2): # 得遍历两次保证惩罚因子的完整扩散
+        # Floyd-Warshall算法
+        for k in crossList:
+            for i in crossList:
+                for j in crossList:
+                    # 引入转向惩罚因子
+                    r1src = path[i][k]['path'][-2]
+                    r1dst = path[i][k]['path'][-1]
+                    r2src = path[k][j]['path'][0]
+                    r2dst = path[k][j]['path'][1]
+                    # 异常： 终点源点相同的路、 不存在的路
+                    try:
+                        road1Id = crossRelation[r1src][r1dst]
+                        road2Id = crossRelation[r2src][r2dst]
+                        direction = roadRelation[road1Id][road2Id]
+                        penalty = 0 if direction == 'forward' else 300 # 60为对一次转向的惩罚系数
+                    except:
+                        penalty = 9999
+
+                    if path[i][j]['length'] > path[i][k]['length'] + path[k][j]['length'] + penalty:
+                        path[i][j]['length'] = path[i][k]['length'] + path[k][j]['length'] + penalty
+                        path[i][j]['path'] = path[i][k]['path'] + path[k][j]['path'][1:]
+
+
+    # path字段由crossId转roadId
+    for src in path:
+        for dst in path:
+            crossPass = path[src][dst]['path']
+            shortestPath = []
+            for i in range(len(crossPass)-1):
+                cross1 = crossPass[i]
+                cross2 = crossPass[i+1]
+                if cross1 != cross2:
+                    roadId = crossRelation[cross1][cross2]
+                    shortestPath.append(roadId)
+            path[src][dst]['path'] = shortestPath
+
+    return path
 
 def getShortestPath(trafficMap, roads):
     """

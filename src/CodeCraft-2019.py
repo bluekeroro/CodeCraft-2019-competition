@@ -9,7 +9,6 @@ sys.path.append(rootPath)
 from lib.car import generateCarInstances
 from lib.road import generateRoadInstances
 from lib.map import Map
-from lib.shortestpath import getShortestPath
 from lib.myLogger import MyLogger
 from lib.scheduler import Scheduler
 
@@ -63,7 +62,7 @@ def loadUnPresetAnswer(trafficMap, roads, cars, startClock):
     """
     # path = getShortestPath(trafficMap, roads)
 
-    intervel = 400
+    intervel = 600
     groups = __groupAllCars(cars)
     MyLogger.print("非预置车辆分组组数：", len(groups))
     for carGroup in groups:
@@ -75,7 +74,8 @@ def loadUnPresetAnswer(trafficMap, roads, cars, startClock):
 
     # MyLogger.print('clock:', startClock)
 
-def computeFactor(scheduler,cars,priorityCar,endclock):
+
+def computeFactor(scheduler, cars, priorityCar, endclock):
     carsIdSpeedList = sorted(cars.keys(), key=lambda x: cars[x].maxSpeed)
     priorityCarIdSpeedList = sorted(priorityCar.keys(), key=lambda x: cars[x].maxSpeed)
 
@@ -104,6 +104,7 @@ def computeFactor(scheduler,cars,priorityCar,endclock):
     Te = a * Tpri + endclock
     MyLogger.print('最终调度时间Te:', Te)
 
+
 def main():
     if len(sys.argv) == 6:
         MyLogger.setEnable(False)
@@ -127,20 +128,40 @@ def main():
     # 载入预置车辆的路径和实际出发时间
     loadPresetAnswer(presetAnswer_path, trafficMap, cars)
 
-    # 载入非预置车辆的路径和实际出发时间
-    loadUnPresetAnswer(trafficMap, roads, cars, 1000)
-
     presetCar = dict((carId, cars[carId]) for carId in cars if cars[carId].isPreset == 1)  # 筛选是否预置
-    unPresetCar = dict((carId, cars[carId]) for carId in cars if cars[carId].isPreset == 0)
-    priorityCar = dict((carId, cars[carId]) for carId in cars if cars[carId].isPriority == 1)  # 筛选是否优先
+    unPresetCar = dict((carId, cars[carId]) for carId in cars if cars[carId].isPreset == 0 and cars[carId].isPriority == 0)  # 筛选普通车辆
+    priorityCar = dict((carId, cars[carId]) for carId in cars if cars[carId].isPriority == 1 and cars[carId].isPreset == 0)  # 筛选优先不是预置的车辆
+
     MyLogger.print("预置车辆的数量：", len(presetCar))
-    MyLogger.print("非预置车辆的数量：", len(unPresetCar))
+    MyLogger.print("普通车辆的数量：", len(unPresetCar))
     MyLogger.print("总车辆的数量：", len(cars))
-    # scheduler = Scheduler(trafficMap, roads, presetCar)
-    # scheduler = Scheduler(trafficMap, roads, unPresetCar)
-    scheduler = Scheduler(trafficMap, roads, cars)
+
+    priorityCarList = [priorityCar[carId] for carId in priorityCar]
+    priorityCarList = sorted(priorityCarList, key=lambda x: x.maxSpeed, reverse=True)  # 速度
+    # 按速度分批次
+    s16carList = [term for term in priorityCarList if term.maxSpeed == 16]
+    s14carList = [term for term in priorityCarList if term.maxSpeed == 14]
+    s12carList = [term for term in priorityCarList if term.maxSpeed == 12]
+    s10carList = [term for term in priorityCarList if term.maxSpeed == 10]
+    s8carList = [term for term in priorityCarList if term.maxSpeed == 8]
+    s6carList = [term for term in priorityCarList if term.maxSpeed == 6]
+    s4carList = [term for term in priorityCarList if term.maxSpeed == 4]
+
+    for i, carList in enumerate([s16carList, s14carList, s12carList, s10carList, s8carList, s6carList, s4carList]):
+        for j, term in enumerate(carList):
+            term.leaveTime = term.planTime + i*len(carList)+j
+
+    priorityCar.update(presetCar)
+    scheduler = Scheduler(trafficMap, roads, priorityCar)
     scheduler.setInitClock(0)
-    endclock = scheduler.run()
+    endclock = scheduler.run(10000) # endclock = 5127
+
+    # 载入非预置车辆的路径和实际出发时间
+    loadUnPresetAnswer(trafficMap, roads, unPresetCar, 1000)
+
+    scheduler = Scheduler(trafficMap, roads, unPresetCar)
+    scheduler.setInitClock(endclock)
+    endclock = scheduler.run(10000)
     MyLogger.print("调度时间:", endclock)
 
     # 生成输出文件
@@ -148,13 +169,14 @@ def main():
     for carId in cars:
         thisCar = cars[carId]
         # 跳过预置车辆
-        if thisCar.isPreset:
-            continue
+        # if thisCar.isPreset:
+        #     continue
         thisCar.route = list(map(lambda x: x[:-2], thisCar.route))  # roadId转换
         answer = '(' + ','.join([thisCar.id, str(thisCar.leaveTime), ','.join(thisCar.route)]) + ')\n'
         file.write(answer)
 
-    computeFactor(scheduler,cars,priorityCar,endclock)
+    computeFactor(scheduler, cars, priorityCar, endclock)
+
 
 if __name__ == "__main__":
     from time import time

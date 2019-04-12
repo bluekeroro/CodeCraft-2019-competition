@@ -26,7 +26,7 @@ class Scheduler(object):
         self.endflag = len(cars)  # 剩余的未完成车辆
         self.existWaitCar = True  # 调度循环标志位：是否存在等待调度车辆
 
-        self.priorityCarsEndClock=0
+        self.priorityCarsEndClock=0  # 优先车辆全部运行完成的时钟
 
     def getCarNumInMap(self):
         return self.endflag - len(self.startNormalList) - len(self.startPriorityList)

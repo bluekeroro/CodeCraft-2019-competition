@@ -63,7 +63,7 @@ def loadUnPresetAnswer(trafficMap, roads, cars, startClock):
     """
     # path = getShortestPath(trafficMap, roads)
 
-    intervel = 1000
+    intervel = 600
     groups = __groupAllCars(cars)
     MyLogger.print("非预置车辆分组组数：", len(groups))
     for carGroup in groups:

@@ -81,7 +81,7 @@ if __name__ == '__main__':
 
     scheduler = Scheduler(trafficMap, roads, cars)
     scheduler.setInitClock(0)
-    totalClock = scheduler.run(1000)
+    totalClock = scheduler.run()
 
     print('Scheduling Clock:', totalClock)
     print('The Time Consumption:', time() - t)

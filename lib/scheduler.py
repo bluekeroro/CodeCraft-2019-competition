@@ -123,7 +123,7 @@ class Scheduler(object):
         """
         i = 0
         while i < len(self.startNormalList):
-            carId = self.startNormalList[0]
+            carId = self.startNormalList[i]
             thisCar = self.cars[carId]
             # 时钟已过出发时间
             if self.clock >= thisCar.leaveTime:
@@ -140,24 +140,23 @@ class Scheduler(object):
                 hasPush, isWait = thisRoad.pushCar(thisCar, 0)
                 # 进入道路成功
                 if hasPush:
-                    self.startNormalList.pop(0)
+                    self.startNormalList.pop(i)
                     i -= 1
                 # 因为没位置而进入道路失败
                 else:
-                    pass
+                    i += 1
             # 时钟尚未过出发时间
             else:
                 # self.startNormalQueue.put(carId)
                 break
-            i += 1
 
     def __startPriority(self):
         """
         调度起点优先车辆
         """
-        i=0
+        i = 0
         while i < len(self.startPriorityList):
-            carId = self.startPriorityList[0]
+            carId = self.startPriorityList[i]
             thisCar = self.cars[carId]
             # 时钟已过出发时间
             if self.clock >= thisCar.leaveTime:
@@ -174,15 +173,15 @@ class Scheduler(object):
                 hasPush, isWait = thisRoad.pushCar(thisCar, 0)
                 # 进入道路成功
                 if hasPush:
-                    self.startPriorityList.pop(0)
-                    i-=1
+                    self.startPriorityList.pop(i)
+                    i -= 1
                 # 因为没位置而进入道路失败
                 else:
-                    pass
+                    i += 1
             # 时钟尚未过出发时间
             else:
                 break
-            i+=1
+
 
     def __runCarsInLane(self, thisRoad, n):
         """

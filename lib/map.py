@@ -7,11 +7,11 @@ class Map(object):
     def __init__(self, configCrossPath, configRoadPath):
         self.configCrossPath = configCrossPath
         self.configRoadPath = configRoadPath
-        self.crossData = {} # 路口数据
-        self.roadData = {} # 道路数据
-        self.crossRelation = {} # 路口的连接关系
-        self.roadRelation = {} # 道路的连接关系
-
+        self.crossData = {}  # 路口数据
+        self.roadData = {}  # 道路数据
+        self.crossRelation = {}  # 路口的连接关系
+        self.roadRelation = {}  # 道路的连接关系
+        self.mapSize = 0  # 道路的总长度乘以channel数
         self.__build()
 
     def __build(self):
@@ -19,8 +19,8 @@ class Map(object):
         建立路口和道路的连接关系
         """
         with open(self.configCrossPath, 'r') as crossFile, open(self.configRoadPath, 'r') as roadFile:
-            crossFile.readline() # 跳过第一行
-            roadFile.readline() # 跳过第一行
+            crossFile.readline()  # 跳过第一行
+            roadFile.readline()  # 跳过第一行
             for line in crossFile:
                 line = line.replace('(', '').replace(')', '').replace('\n', '')
                 line = line.split(', ')
@@ -31,7 +31,7 @@ class Map(object):
                 self.roadData[line[0]] = line
 
         # 生成路口连接关系
-        self.crossRelation = {cross[0]:{} for cross in self.crossData.values()}
+        self.crossRelation = {cross[0]: {} for cross in self.crossData.values()}
         for road in self.roadData.values():
             roadId = road[0]
             src = road[4]
@@ -77,7 +77,7 @@ class Map(object):
             return self.roadRelation[roadId]
         else:
             raise Exception("Road Id Not Exist")
-        
+
 
 if __name__ == '__main__':
     configCrossPath = '../config/cross.txt'

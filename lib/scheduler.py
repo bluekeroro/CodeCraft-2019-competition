@@ -26,6 +26,11 @@ class Scheduler(object):
         self.endflag = len(cars)  # 剩余的未完成车辆
         self.existWaitCar = True  # 调度循环标志位：是否存在等待调度车辆
 
+        self.priorityCarsEndClock=0
+
+    def getCarNumInMap(self):
+        return self.endflag - len(self.startNormalList) - len(self.startPriorityList)
+
     def setInitClock(self, initClock):
         """
         设置初始时钟
@@ -260,6 +265,8 @@ class Scheduler(object):
                             thisCar.currentLocPos = thisRoad.length
                             self.endflag -= 1
                             MyLogger.print("剩余的未完成车辆：", self.endflag, '调度时间：', self.clock)
+                            if thisCar.isPriority == 1 and len(self.startPriorityList) == 0:
+                                self.priorityCarsEndClock = self.clock
                             break  # 跳出本次循环并将重新循环，因为popCar以后循环次序变了
 
                 # 检查调度完以后该车的调度状态

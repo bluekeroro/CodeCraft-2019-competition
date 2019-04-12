@@ -57,6 +57,34 @@ def __loadPresetAnswer(presetAnswer_path, trafficMap, cars):
             thisCar.leaveTime = leaveTime
             thisCar.isPreset = 1 # 为了测试方便
 
+def computeFactor(scheduler,cars,priorityCar,endclock):
+    carsIdSpeedList = sorted(cars.keys(), key=lambda x: cars[x].maxSpeed)
+    priorityCarIdSpeedList = sorted(priorityCar.keys(), key=lambda x: cars[x].maxSpeed)
+
+    carsIdTimeList = sorted(cars.keys(), key=lambda x: cars[x].leaveTime)
+    priorityCarIdTimeList = sorted(priorityCar.keys(), key=lambda x: cars[x].leaveTime)
+    priorityCarIdplanTimeList = sorted(priorityCar.keys(), key=lambda x: cars[x].planTime)
+
+    startCrossCount = len(set(cars[carId].srcCross for carId in cars))
+    endCrossCount = len(set(cars[carId].dstCross for carId in cars))
+
+    priorityStartCrossCount = len(set(priorityCar[carId].srcCross for carId in priorityCar))
+    priorityEndCrossCount = len(set(priorityCar[carId].dstCross for carId in priorityCar))
+
+    a = len(cars) / len(priorityCar) * 0.05 \
+        + cars[carsIdSpeedList[-1]].maxSpeed / cars[carsIdSpeedList[0]].maxSpeed / (
+                priorityCar[priorityCarIdSpeedList[-1]].maxSpeed / priorityCar[
+            priorityCarIdSpeedList[0]].maxSpeed) * 0.2375 \
+        + cars[carsIdTimeList[-1]].leaveTime / cars[carsIdTimeList[0]].leaveTime / (
+                priorityCar[priorityCarIdTimeList[-1]].leaveTime / priorityCar[
+            priorityCarIdTimeList[0]].leaveTime) * 0.2375 \
+        + startCrossCount / priorityStartCrossCount * 0.2375 \
+        + endCrossCount / priorityEndCrossCount * 0.2375
+    MyLogger.print('系数因子a:', a)
+    Tpri = scheduler.priorityCarsEndClock - priorityCar[priorityCarIdplanTimeList[0]].planTime
+    MyLogger.print('优先车辆的调度时间Tpri:', Tpri)
+    Te = a * Tpri + endclock
+    MyLogger.print('最终调度时间Te:', Te)
 
 if __name__ == '__main__':
     from time import time
@@ -76,12 +104,15 @@ if __name__ == '__main__':
 
     # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].leaveTime <= 5) # 筛选出发时间
     # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].maxSpeed >= 8) # 筛选最大速度
-    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPreset == 1) # 筛选是否预置
+    presetCars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPreset == 1) # 筛选是否预置
     # cars = dict((carId,cars[carId]) for i,carId in enumerate(cars) if i<1000) # 筛选车的数量
+    priorityCar = dict((carId, cars[carId]) for carId in cars if cars[carId].isPriority == 1)  # 筛选是否优先
 
-    scheduler = Scheduler(trafficMap, roads, cars)
+    scheduler = Scheduler(trafficMap, roads, presetCars)
     scheduler.setInitClock(0)
     totalClock = scheduler.run()
+
+    computeFactor(scheduler, cars, priorityCar, totalClock)
 
     print('Scheduling Clock:', totalClock)
     print('The Time Consumption:', time() - t)

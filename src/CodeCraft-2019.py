@@ -20,6 +20,7 @@ def __groupAllCars(cars):
     # 过滤预置车辆
     carList = list(filter(lambda x: (x[1].isPreset == 0), cars.items()))
     # 按速度排序
+    carList = sorted(carList, key=lambda x: (x[1].planTime))
     carList = sorted(carList, key=lambda x: (x[1].maxSpeed), reverse=True)
 
     # 分组
@@ -62,17 +63,48 @@ def loadUnPresetAnswer(trafficMap, roads, cars, startClock):
     """
     # path = getShortestPath(trafficMap, roads)
 
-    intervel = 600
+    # intervel = 600
     groups = __groupAllCars(cars)
     MyLogger.print("非预置车辆分组组数：", len(groups))
-    for carGroup in groups:
+    for i, carGroup in enumerate(groups):
         # 设置出发时间
-        for carId in carGroup:
+        for j, carId in enumerate(carGroup):
             thisCar = cars[carId]
-            thisCar.leaveTime = startClock
-        startClock += intervel
+            thisCar.leaveTime =int((startClock if startClock > thisCar.planTime else thisCar.planTime) \
+                                + (i * len(carGroup) * 0.028 + 0.005 * j))
+        # startClock += intervel
 
     # MyLogger.print('clock:', startClock)
+
+
+def setPriorityGroup(cars):
+    carList = list(filter(lambda x: (x[1].isPreset == 0 and x[1].isPriority == 1), cars.items()))
+    # carList = sorted(carList, key=lambda x:(x[1].shortestDistance), reverse=False)
+    carList = sorted(carList, key=lambda x: (x[1].maxSpeed), reverse=True)
+
+    cnt = 800
+    param = [0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02]
+
+    for carId, thisCar in carList:
+        speed = thisCar.maxSpeed
+        if speed == 16:
+            cnt += param[0]
+        if speed == 14:
+            cnt += param[1]
+        if speed == 12:
+            cnt += param[2]
+        if speed == 10:
+            cnt += param[3]
+        if speed == 8:
+            cnt += param[4]
+        if speed == 6:
+            cnt += param[5]
+        if speed == 4:
+            cnt += param[6]
+        thisCar.leaveTime = int(cnt)
+
+    group = dict(carList)
+    return group
 
 
 def computeFactor(scheduler, cars, priorityCar, endclock, priorityCarsEndClock):
@@ -125,7 +157,7 @@ def main():
     cars = generateCarInstances(car_path)
     roads = generateRoadInstances(road_path)
 
-    for roadId in roads: # 计算地图大小
+    for roadId in roads:  # 计算地图大小
         trafficMap.mapSize += roads[roadId].length * roads[roadId].laneNum
 
     # 载入预置车辆的路径和实际出发时间
@@ -134,39 +166,42 @@ def main():
     presetCar = dict((carId, cars[carId]) for carId in cars if cars[carId].isPreset == 1)  # 筛选是否预置
     normalCar = dict(
         (carId, cars[carId]) for carId in cars if cars[carId].isPreset == 0 and cars[carId].isPriority == 0)  # 筛选普通车辆
-    priorityCar = dict((carId, cars[carId]) for carId in cars if
-                       cars[carId].isPriority == 1 and cars[carId].isPreset == 0)  # 筛选优先不是预置的车辆
+    priorityCar = setPriorityGroup(cars)
 
     MyLogger.print("预置车辆的数量：", len(presetCar))
     MyLogger.print("普通车辆的数量：", len(normalCar))
     MyLogger.print("总车辆的数量：", len(cars))
 
-    priorityCarList = [priorityCar[carId] for carId in priorityCar]
-    priorityCarList = sorted(priorityCarList, key=lambda x: x.maxSpeed, reverse=True)  # 速度
+    # priorityCarList = [priorityCar[carId] for carId in priorityCar]
+    # priorityCarList = sorted(priorityCarList, key=lambda x: x.maxSpeed, reverse=True)  # 速度
     # 按速度分批次
-    s16carList = [term for term in priorityCarList if term.maxSpeed == 16]
-    s14carList = [term for term in priorityCarList if term.maxSpeed == 14]
-    s12carList = [term for term in priorityCarList if term.maxSpeed == 12]
-    s10carList = [term for term in priorityCarList if term.maxSpeed == 10]
-    s8carList = [term for term in priorityCarList if term.maxSpeed == 8]
-    s6carList = [term for term in priorityCarList if term.maxSpeed == 6]
-    s4carList = [term for term in priorityCarList if term.maxSpeed == 4]
+    # s16carList = [term for term in priorityCarList if term.maxSpeed == 16]
+    # s14carList = [term for term in priorityCarList if term.maxSpeed == 14]
+    # s12carList = [term for term in priorityCarList if term.maxSpeed == 12]
+    # s10carList = [term for term in priorityCarList if term.maxSpeed == 10]
+    # s8carList = [term for term in priorityCarList if term.maxSpeed == 8]
+    # s6carList = [term for term in priorityCarList if term.maxSpeed == 6]
+    # s4carList = [term for term in priorityCarList if term.maxSpeed == 4]
 
-    for i, carList in enumerate([s16carList, s14carList, s12carList, s10carList, s8carList, s6carList, s4carList]):
-        for j, term in enumerate(carList):
-            term.leaveTime = term.planTime + i * len(carList) + j
+    # for i, carList in enumerate([s16carList, s14carList, s12carList, s10carList, s8carList, s6carList, s4carList]):
+    #     for j, term in enumerate(carList):
+    #         term.leaveTime = term.planTime + i * len(carList) + j
 
     priorityCar.update(presetCar)
-    scheduler = Scheduler(trafficMap, roads, priorityCar)
-    scheduler.setInitClock(0)
-    endclock = scheduler.run(10000)  # endclock = 5127
-    priorityCarsEndClock = scheduler.priorityCarsEndClock
+    # scheduler = Scheduler(trafficMap, roads, priorityCar)
+    # scheduler.setInitClock(0)
+    # endclock = scheduler.run(10000)  # endclock = 5127
+    # priorityCarsEndClock = scheduler.priorityCarsEndClock # 1079
+    # endclock1=endclock
     # 载入非预置车辆的路径和实际出发时间
-    loadUnPresetAnswer(trafficMap, roads, normalCar, 1000)
+    loadUnPresetAnswer(trafficMap, roads, normalCar, int(1079*0.6))
 
-    scheduler = Scheduler(trafficMap, roads, normalCar)
-    scheduler.setInitClock(endclock)
+    # scheduler = Scheduler(trafficMap, roads, normalCar)
+    scheduler = Scheduler(trafficMap, roads, cars)
+    scheduler.setInitClock(0)
     endclock = scheduler.run(10000)
+    priorityCarsEndClock = scheduler.priorityCarsEndClock
+    # MyLogger.print("第一轮调度时间:", endclock1)
     MyLogger.print("调度时间:", endclock)
 
     # 生成输出文件
@@ -180,6 +215,8 @@ def main():
         answer = '(' + ','.join([thisCar.id, str(thisCar.leaveTime), ','.join(thisCar.route)]) + ')\n'
         file.write(answer)
 
+    priorityCar = dict((carId, cars[carId]) for carId in cars if
+                       cars[carId].isPriority == 1)  # 筛选优先的车辆
     computeFactor(scheduler, cars, priorityCar, endclock, priorityCarsEndClock)
 
 

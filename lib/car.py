@@ -13,6 +13,8 @@ class Car(object):
         self.isPreset = data['isPreset']  # 是否为预置车辆
 
         self.route = []  # 路线
+        self.turnNum = None
+        self.shortestDistance = None # 最短距离
         self.leaveTime = None  # 实际出发时间
         self.currentLocRoad = None  # 当前所在的道路
         self.currentLocLane = None  # 当前所在的车道
@@ -35,7 +37,7 @@ class Car(object):
         return nextRoadId
 
 
-def generateCarInstances(car_path):
+def generateCarInstances(car_path, path):
     carSet = {}
     with open(car_path, 'r') as f:
         f.readline()  # 跳过第一行
@@ -52,6 +54,7 @@ def generateCarInstances(car_path):
                 'isPreset': int(line[6]),
             }
             carSet[data['id']] = Car(**data)
+            carSet[data['id']].shortestDistance = path[data['from']][data['to']]['length']
     return carSet
 
 

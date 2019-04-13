@@ -17,9 +17,10 @@ class Scheduler(object):
 
         self.shortestpath = getShortestPath(trafficMap, roads)
 
+        self.startClock = 0 # 开始时钟
         self.clock = 0 # 调度时钟
-        self.startNormalQueue = Queue() # 处于起点的普通车辆队列
-        self.startPriorityQueue = Queue() # 处于起点的优先车辆队列
+        self.startNormalQueue = [] # 处于起点的普通车辆队列
+        self.startPriorityQueue = [] # 处于起点的优先车辆队列
         self.endQueue = Queue() # 处于终点的车辆队列
         self.roadSchedulOrder = [] # 道路的调度顺序
 
@@ -31,6 +32,7 @@ class Scheduler(object):
         设置初始时钟
         """
         self.clock = initClock
+        self.startClock = initClock
 
     def pickGoodRoad(self, currCrossId, dstCrossId, srcRoad='fangqy'):
         """
@@ -87,12 +89,14 @@ class Scheduler(object):
         """
         调度初始化
         """
-        for carId in sorted(self.cars.keys(), key=lambda x:int(x)):
+        seq = sorted(self.cars.keys(), key=lambda x:int(x))
+        seq = sorted(seq, key=lambda x:self.cars[x].leaveTime)
+        for carId in seq:
             self.cars[carId].status = 'start'
             if self.cars[carId].isPriority:
-                self.startPriorityQueue.put(carId)
+                self.startPriorityQueue.append(carId)
             else:
-                self.startNormalQueue.put(carId)
+                self.startNormalQueue.append(carId)
 
         for crossId in sorted(self.trafficMap.crossRelation.keys(), key=lambda x:int(x)):
             for roadId in sorted(self.trafficMap.crossRelation[crossId].values(), key=lambda x:int(x[:-2])):
@@ -115,8 +119,9 @@ class Scheduler(object):
         """
         调度起点普通车辆
         """
-        for i in range(self.startNormalQueue.qsize()):
-            carId = self.startNormalQueue.get()
+        i = 0
+        while i<len(self.startNormalQueue):
+            carId = self.startNormalQueue[i]
             thisCar = self.cars[carId]
             # 时钟已过出发时间
             if self.clock >= thisCar.leaveTime:
@@ -133,20 +138,22 @@ class Scheduler(object):
                 hasPush, isWait = thisRoad.pushCar(thisCar, 0)
                 # 进入道路成功
                 if hasPush:
-                    pass
+                    self.startNormalQueue.pop(i)
                 # 因为没位置而进入道路失败
                 else:
-                    self.startNormalQueue.put(carId)
+                    i+=1
             # 时钟尚未过出发时间
             else:
-                self.startNormalQueue.put(carId)
+                break
+
 
     def __startPriority(self):
         """
         调度起点优先车辆
         """
-        for i in range(self.startPriorityQueue.qsize()):
-            carId = self.startPriorityQueue.get()
+        i = 0
+        while i<len(self.startPriorityQueue):
+            carId = self.startPriorityQueue[i]
             thisCar = self.cars[carId]
             # 时钟已过出发时间
             if self.clock >= thisCar.leaveTime:
@@ -163,13 +170,13 @@ class Scheduler(object):
                 hasPush, isWait = thisRoad.pushCar(thisCar, 0)
                 # 进入道路成功
                 if hasPush:
-                    pass
+                    self.startPriorityQueue.pop(i)
                 # 因为没位置而进入道路失败
                 else:
-                    self.startPriorityQueue.put(carId)
+                    i+=1
             # 时钟尚未过出发时间
             else:
-                self.startPriorityQueue.put(carId)
+                break
 
     def __runCarsInLane(self, thisRoad, n):
         """
@@ -328,7 +335,7 @@ class Scheduler(object):
                 self.__runCarsInEntrance(thisRoad)
         return loop
         
-    def run(self, clock=9999999):
+    def run(self, clock=5000):
         """
         运行调度器
         """
@@ -341,12 +348,15 @@ class Scheduler(object):
 
             self.__startCars()
 
-            # print(self.clock,'Loop:', loop)
+            if self.clock - self.startClock >= clock:
+                raise Exception('Deadlock')
+
+            MyLogger.print(self.clock,self.endflag)
             # if self.clock >= clock:
-            #     # self.showAllCarsInfo()
-            #     self.showSomeRoadsInfo()
-            #     # self.showAllRoadsInfo()
-            #     input()
+                # self.showAllCarsInfo()
+                # self.showSomeRoadsInfo()
+                # self.showAllRoadsInfo()
+                # input()
 
         return self.clock
 

@@ -14,7 +14,7 @@ sys.path.append(rootPath)
 from lib.car import generateCarInstances
 from lib.road import generateRoadInstances
 from lib.map import Map
-from lib.shortestpath import getShortestPath
+from lib.shortestpath import getShortestPath, countTurning
 from lib.myLogger import MyLogger
 from lib.scheduler import Scheduler
 
@@ -27,7 +27,8 @@ def __loadPathTime(trafficMap, roads):
         thisCar = cars[carId]
         srcCross = thisCar.srcCross
         dstCross = thisCar.dstCross
-        # thisCar.route = path[srcCross][dstCross]['path']
+        thisCar.route = path[srcCross][dstCross]['path']
+        thisCar.turnNum = countTurning(path, trafficMap.roadRelation, thisCar.srcCross, thisCar.dstCross)
         thisCar.leaveTime = thisCar.planTime 
 
 def __loadPresetAnswer(presetAnswer_path, trafficMap, cars):
@@ -56,9 +57,6 @@ def __loadPresetAnswer(presetAnswer_path, trafficMap, cars):
 
 
 if __name__ == '__main__':
-    from time import time
-    t = time()
-
     configCrossPath = '../config/cross.txt'
     configRoadPath = '../config/road.txt'
     configCarPath = '../config/car.txt'
@@ -66,23 +64,33 @@ if __name__ == '__main__':
 
     trafficMap = Map(configCrossPath, configRoadPath)
     roads = generateRoadInstances(configRoadPath)
-    cars = generateCarInstances(configCarPath)
+    path = getShortestPath(trafficMap, roads)
+    cars = generateCarInstances(configCarPath,path)
 
     __loadPathTime(trafficMap, roads)
     __loadPresetAnswer(presetAnswer_path, trafficMap, cars)
 
+    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPreset == 0) # 筛选是否预置
+    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPriority == 1) # 筛选是否预置
 
-    cars = dict((carId,cars[carId]) for carId in cars if cars[carId].leaveTime <= 5) # 筛选出发时间
-    # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].maxSpeed >= 8) # 筛选最大速度
-    # cars = dict((carId,cars[carId]) for carId in cars if cars[carId].isPreset == 1) # 筛选是否预置
-    # cars = dict((carId,cars[carId]) for i,carId in enumerate(cars) if i<1000) # 筛选车的数量
+    ss = {}
+    for carId in cars:
+        thisCar = cars[carId]
+        s = thisCar.maxSpeed
+        ss[s] = ss[s]+1 if s in ss else 1
+    print(ss)
 
-    scheduler = Scheduler(trafficMap, roads, cars)
-    scheduler.setInitClock(0)
-    totalClock = scheduler.run(1000)
+    ts = {}
+    for carId in cars:
+        thisCar = cars[carId]
+        t = thisCar.turnNum
+        ts[t] = ts[t]+1 if t in ts else 1
+    print(ts)
 
-    print('Scheduling Clock:', totalClock)
-    print('The Time Consumption:', time() - t)
-    print('Car Num:',len(cars))
-
+    ll = 0
+    for carId in cars:
+        thisCar = cars[carId]
+        for roadId in thisCar.route:
+            ll += roads[roadId].length
+    print(ll)
 

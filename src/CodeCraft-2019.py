@@ -9,30 +9,10 @@ sys.path.append(rootPath)
 from lib.car import generateCarInstances
 from lib.road import generateRoadInstances
 from lib.map import Map
-from lib.shortestpath import getShortestPath
+from lib.shortestpath import getShortestPath, countTurning
 from lib.myLogger import MyLogger
 from lib.scheduler import Scheduler
 
-
-def __groupAllCars(cars):
-    """
-    对非预置车辆进行分组
-    """
-    # 过滤预置车辆
-    carList = list(filter(lambda x:(x[1].isPreset == 0), cars.items()))
-    # 按速度排序
-    carList = sorted(carList, key=lambda x:(x[1].maxSpeed), reverse=True)
-
-    # 分组
-    groupSize = 1000
-    groups = [carList[i:i+groupSize] for i in range(0,len(carList),groupSize)]
-    groups = [dict(group) for group in groups]
-
-    return groups
-
-
-
-        
 def loadPresetAnswer(presetAnswer_path, trafficMap, cars):
     """
     载入预置车辆的路径和实际出发时间
@@ -58,27 +38,49 @@ def loadPresetAnswer(presetAnswer_path, trafficMap, cars):
             thisCar.leaveTime = leaveTime
 
 
-def loadUnPresetAnswer(trafficMap, roads, cars):
+def loadUnPresetAnswer(trafficMap, roads, cars, path):
     """
     载入非预置车辆的路径和实际出发时间
     """
-    # path = getShortestPath(trafficMap, roads)
+    # 过滤预置车辆
+    carList = list(filter(lambda x:(x[1].isPreset == 0), cars.items()))
 
-    startClock = 1000 
-    groups = __groupAllCars(cars)
-    for carGroup in groups:
-        # 设置出发时间
-        for carId in carGroup:
-            thisCar = cars[carId]
-            thisCar.leaveTime = startClock
+    # 载入路径
+    for carId,thisCar in carList:
+        thisCar.route = path[thisCar.srcCross][thisCar.dstCross]['path']
+        thisCar.turnNum = countTurning(path, trafficMap.roadRelation, thisCar.srcCross, thisCar.dstCross)
 
-        scheduler = Scheduler(trafficMap, roads, carGroup)
-        scheduler.setInitClock(startClock)
-        startClock = scheduler.run()
+    # # 排序
+    # carList = sorted(carList, key=lambda x:(x[1].shortestDistance), reverse=False) # 距离
+    carList = sorted(carList, key=lambda x:(x[1].turnNum), reverse=False) # 转向
+    carList = sorted(carList, key=lambda x:(x[1].maxSpeed), reverse=True) # 速度
+    carList = sorted(carList, key=lambda x:(x[1].isPriority), reverse=True) # 优先
+
+    param = [0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
+    cnt = 337
+    for carId,thisCar in carList:
+        speed = thisCar.maxSpeed
+        if speed == 4:
+            cnt += param[0]
+        if speed == 6:
+            cnt += param[1]
+        if speed == 8:
+            cnt += param[2]
+        if speed == 10:
+            cnt += param[3]
+        if speed == 12:
+            cnt += param[4]
+        if speed == 14:
+            cnt += param[5]
+        if speed == 16:
+            cnt += param[6]
+
+        thisCar.leaveTime = int(cnt)
+        thisCar.route = path[thisCar.srcCross][thisCar.dstCross]['path']
+
+    MyLogger.print(cnt)
+
         
-        MyLogger.print('clock:', startClock)
-
-
 
 def main():
     if len(sys.argv) == 6:
@@ -97,14 +99,15 @@ def main():
 
     # 获得交通图和车辆及道路的所有实例
     trafficMap = Map(cross_path, road_path)
-    cars = generateCarInstances(car_path)
     roads = generateRoadInstances(road_path)
+    path = getShortestPath(trafficMap, roads)
+    cars = generateCarInstances(car_path, path)
 
     # 载入预置车辆的路径和实际出发时间
     loadPresetAnswer(presetAnswer_path, trafficMap, cars)
 
     # 载入非预置车辆的路径和实际出发时间
-    loadUnPresetAnswer(trafficMap, roads, cars)
+    loadUnPresetAnswer(trafficMap, roads, cars, path)
 
     # 生成输出文件
     file = open(answer_path, 'w')
